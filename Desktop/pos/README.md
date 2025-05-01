@@ -12,6 +12,26 @@ Key Features:
 - Sales reports and analytics
 - Product categorization and management
 
+## System Screenshots
+
+### Dashboard View
+![Dashboard](Screenshots/Screenshot%202025-04-29%20at%2007.22.20.png)
+
+### Product Management
+![Product Management](Screenshots/Screenshot%202025-04-29%20at%2007.22.55.png)
+
+### Sales Interface
+![Sales Interface](Screenshots/Screenshot%202025-04-29%20at%2007.23.06.png)
+
+### Inventory Overview
+![Inventory Overview](Screenshots/Screenshot%202025-04-29%20at%2007.23.15.png)
+
+### Customer Transactions
+![Customer Transactions](Screenshots/Screenshot%202025-04-29%20at%2007.23.26.png)
+
+### Reports and Analytics
+![Reports and Analytics](Screenshots/Screenshot%202025-04-29%20at%2007.23.35.png)
+
 ## Technologies Used
 - **Backend Framework**: 
   - Django 4.x (Python web framework)
