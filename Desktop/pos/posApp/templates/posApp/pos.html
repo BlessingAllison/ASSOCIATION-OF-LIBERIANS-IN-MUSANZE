@@ -1,0 +1,368 @@
+{% extends "posApp/base.html" %}
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Point of Sales</h4>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <form action="" id="pos-form">
+            <fieldset>
+                <legend>Add Products</legend>
+                <div class="row align-items-end">
+                    <div class="col-lg-5 col-md-5 col-sm-12">
+                        <div class="form-group mb-3">
+                            <label for="product-id">Select Product</label>
+                            <select id="product-id" class="form-select form-select-sm">
+                                <option value="" disabled selected>Select a product</option>
+                                {% for product in products %}
+                                    <option value="{{ product.pk }}">{{ product }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-5 col-md-12">
+                        <div class="form-group mb-3">
+                            <label for="product-qty">Qty</label>
+                            <input type="number" class="form-control form-control-sm text-center" step="any" id="product-qty" value="1">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-2 col-md-12">
+                        <div class="form-group mb-3">
+                            <button class="btn btn-light btn-sm bg-gradient border rounded-0 text-start" type="button" id="add_item"><i class="mdi mdi-plus"></i> Add Item</button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <div class="d-flex w-100" id="POS-field">
+                    <div class="col-8 bg-gradient bg-light border h-100">
+                        <table class="table table-bordered">
+                            <colgroup>
+                                <col width="5%">
+                                <col width="15%">
+                                <col width="40%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-dark bg-gradient bg-opacity-50 text-light">
+                                    <th class="py-1 px-2 text-center text-light"></th>
+                                    <th class="py-1 px-2 text-center text-light">QTY</th>
+                                    <th class="py-1 px-2 text-center text-light">Product</th>
+                                    <th class="py-1 px-2 text-center text-light">Price</th>
+                                    <th class="py-1 px-2 text-center text-light">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-4 bg-gradient bg-dark bg-opacity-50 border h-100">
+                        <div class="col-12 py-4 px-2">
+                            <dl>
+                                <dt class="h4 fw-bold text-light">Sub Total</dt>
+                                <dd class="text-end py-1 px-2 rounded-0 bg-light">
+                                    <input type="hidden" name="sub_total" value="0">
+                                    <span class="h3 fw-bold" id="sub_total">0.00</span>
+                                </dd>
+                                <dt class="h4 fw-bold text-light">Tax Inclusive (%)</dt>
+                                <dd>
+                                    <input type="number" class="form-control form-control-lg rounded-0 text-end" step="any" min="0" max="100" name="tax" value="0">
+                                </dd>
+                                <dt class="h4 fw-bold text-light">Tax Amount</dt>
+                                <dd class="text-end py-1 px-2 rounded-0 bg-light">
+                                    <input type="hidden" name="tax_amount" value="0">
+                                    <span class="h3 fw-bold" id="tax_amount">0.00</span>
+                                </dd>
+                                <dt class="h4 fw-bold text-light">Grand Total</dt>
+                                <dd class="text-end py-1 px-2 rounded-0 bg-light">
+                                    <input type="hidden" name="grand_total" value="0">
+                                    <input type="hidden" name="tendered_amount" value="0">
+                                    <input type="hidden" name="amount_change" value="0">
+                                    <span class="h3 fw-bold" id="grand_total">0.00</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <button class="btn btn-primary btn-sm rounded-0" type="button" id="check_out"><i class="mdi mdi-save"></i> Checkout</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<noscript id="item-clone">
+    <tr>
+        <td class="px-2 py-1 text-center">
+            <button class="btn btn-sm btn-outline-danger rounded-0 rem-item" type="button"><i class="mdi mdi-close"></i></button>
+        </td>
+        <td class="px-2 py-1">
+            <input type="hidden" name="product_id[]">
+            <input type="hidden" name="price[]">
+            <input type="number" name="qty[]" min="0" class="form-control form-control-sm rounded-0 text-center">
+        </td>
+        <td class="px-2 py-1 product_name text-start"></td>
+        <td class="px-2 py-1 product_price text-end"></td>
+        <td class="px-2 py-1 product_total text-end"></td>
+    </tr>
+</noscript>
+{% endblock pageContent %}
+{% block ScriptBlock %}
+<script>
+// Step 1: Check if jQuery is loaded
+if (typeof $ === 'undefined') {
+    console.error("jQuery is not loaded! Please ensure jQuery is included in base.html before this script.");
+} else {
+    console.log("jQuery is loaded successfully. Version:", $.fn.jquery);
+}
+
+// Step 2: Utility function to decode HTML entities
+function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+}
+
+// Step 3: Check product data
+var product_json = '{{ product_json | safe }}';  // Use |safe to prevent escaping
+var prod_arr = {};
+if (product_json && product_json !== "" && product_json !== "{}") {
+    try {
+        // Log raw product_json for debugging
+        console.log("Raw product_json:", product_json);
+
+        // Parse the JSON
+        var product_array = $.parseJSON(product_json);
+
+        // Map the array into prod_arr with id as the key
+        if (Array.isArray(product_array)) {
+            product_array.forEach(function(product) {
+                // Ensure the id is a string
+                var productId = String(product.id);
+                prod_arr[productId] = product;
+            });
+            console.log("Product data parsed successfully:", prod_arr);
+        } else {
+            console.error("product_json is not an array:", product_array);
+        }
+    } catch (e) {
+        console.error("Error parsing product_json:", e);
+        prod_arr = {};
+    }
+} else {
+    console.warn("No product data available. product_json is:", product_json);
+    // Fallback: Build prod_arr from the select options if product_json is empty
+    $('#product-id option').each(function() {
+        var id = $(this).val();
+        var name = $(this).text();
+        if (id && id !== "") {
+            // Use a default price if not available
+            prod_arr[id] = {
+                id: id,
+                name: name,
+                price: 0.0  // Placeholder price; ideally, this should come from the backend
+            };
+        }
+    });
+    console.log("Fallback prod_arr built from select options:", prod_arr);
+}
+
+// Step 4: Calculation function (with tax and grand total)
+function calc() {
+    console.log("Calculating totals...");
+    var sub_total = 0;
+    $('#POS-field table tbody tr').each(function() {
+        var price = $(this).find('[name="price[]"]').val();
+        var qty = $(this).find('[name="qty[]"]').val();
+        qty = qty > 0 ? qty : 0;
+        var total = parseFloat(price) * parseFloat(qty);
+        $(this).find('.product_total').text(parseFloat(total).toLocaleString('en-US'));
+        sub_total += parseFloat(total);
+    });
+    var tax = $('[name="tax"]').val();
+    tax = tax / 100;
+    var tax_amount = parseFloat(sub_total) * parseFloat(tax);
+    var grand_total = sub_total + tax_amount;
+
+    $('#sub_total').text(parseFloat(sub_total).toLocaleString('en-US'));
+    $('[name="sub_total"]').val(parseFloat(sub_total));
+    $('#tax_amount').text(parseFloat(tax_amount).toLocaleString('en-US'));
+    $('[name="tax_amount"]').val(parseFloat(tax_amount));
+    $('#grand_total').text(parseFloat(grand_total).toLocaleString('en-US'));
+    $('[name="grand_total"]').val(parseFloat(grand_total));
+
+    console.log("Subtotal:", sub_total, "Tax Amount:", tax_amount, "Grand Total:", grand_total);
+}
+
+// Step 5: Document ready
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        console.log("Document is ready. Setting up event listeners...");
+
+        // Initialize Select2
+        $('#product-id').select2({
+            placeholder: "Please Select Product here",
+            width: '100%'
+        });
+
+        // Check if the button exists
+        var addItemButton = $('#add_item');
+        if (addItemButton.length === 0) {
+            console.error("Add Item button (#add_item) not found in the DOM!");
+        } else {
+            console.log("Add Item button found:", addItemButton);
+        }
+
+        // Bind click event using delegation
+        $(document).on('click', '#add_item', function(e) {
+            console.log("Add Item button clicked. Event:", e);
+
+            var id = $('#product-id').val();
+            var qty = $('#product-qty').val();
+            console.log("Selected product ID:", id, "Quantity:", qty);
+
+            if (!id || qty <= 0) {
+                console.warn("Validation failed: Product ID or quantity invalid.");
+                alert("Please select a product and enter a valid quantity (greater than 0)!");
+                return false;
+            }
+
+            // Ensure id is treated as a string
+            id = String(id);
+            if (!prod_arr[id]) {
+                console.warn("Product not found in prod_arr. ID:", id);
+                console.log("Available product IDs in prod_arr:", Object.keys(prod_arr));
+                alert("Undefined Product. Please check if product data is loaded correctly. See console for details.");
+                return false;
+            }
+
+            if ($('#POS-field table tbody input[name="product_id[]"][value="' + id + '"]').length > 0) {
+                console.warn("Item already in the list. ID:", id);
+                alert('Item already in the list.');
+                return false;
+            }
+
+            try {
+                var data = prod_arr[id];
+                console.log("Product data:", data);
+
+                // Decode HTML entities before cloning
+                var htmlContent = decodeHtml($('noscript#item-clone').html());
+                var tr = $(htmlContent).clone();
+                console.log("Cloned row:", tr);
+
+                tr.find('[name="qty[]"]').val(qty);
+                tr.find('[name="product_id[]"]').val(id);
+                tr.find('[name="price[]"]').val(data.price);
+                tr.find('.product_name').text(data.name);
+                tr.find('.product_price').text(parseFloat(data.price).toLocaleString('en-US'));
+                tr.find('.product_total').text(parseFloat(data.price * qty).toLocaleString('en-US'));
+
+                var tbody = $('#POS-field table tbody');
+                if (tbody.length === 0) {
+                    console.error("Table tbody not found!");
+                    return false;
+                }
+                tbody.append(tr);
+                console.log("Row appended to tbody successfully.");
+
+                $('#product-id').val('').trigger('change');
+                $('#product-qty').val(1);
+                calc();
+
+                tr.find('.rem-item').on('click', function() {
+                    console.log("Remove item clicked.");
+                    if (confirm("Are you sure to remove " + data.name + " product from list?")) {
+                        tr.remove();
+                        calc();
+                    }
+                });
+
+                tr.find('[name="qty[]"]').on('input', function() {
+                    console.log("Quantity changed. Recalculating...");
+                    calc();
+                });
+            } catch (e) {
+                console.error("Error in Add Item handler:", e);
+                alert("An error occurred while adding the item. Check the console for details.");
+            }
+        });
+
+        // Bind tax input changes
+        $('[name="tax"]').on('input keypress keydown keyup', function() {
+            console.log("Tax value changed. Recalculating...");
+            calc();
+        });
+
+        // Bind checkout button
+        $('#check_out').on('click', function() {
+            if ($('#POS-field table tbody tr').length <= 0) {
+                alert("Add at least 1 product first!");
+                return false;
+            }
+            uni_modal("Checkout", "{% url 'checkout-modal' %}?grand_total=" + $('[name="grand_total"]').val());
+        });
+
+        // Form submission
+        $('#pos-form').on('submit', function(e) {
+            e.preventDefault();
+            var _this = $(this);
+            $('.err-msg').remove();
+            var el = $('<div>');
+            el.addClass("alert alert-danger err-msg");
+            el.hide();
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-pos' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log("AJAX error:", err);
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg");
+                        uni_modal("Receipt", "{% url 'receipt-modal' %}?id=" + resp.sale_id);
+                        $('#uni_modal').on('hide.bs.modal', function() {
+                            location.reload();
+                        });
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg);
+                    } else {
+                        el.text("An error occurred", 'error');
+                        end_loader();
+                        console.error("AJAX response error:", resp);
+                    }
+                    _this.prepend(el);
+                    el.show('slow');
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader();
+                }
+            });
+        });
+    });
+} else {
+    console.error("Cannot set up event listeners because jQuery is not loaded.");
+}
+</script>
+{% endblock ScriptBlock %}
