@@ -1,1 +1,1 @@
-web: cd . && gunicorn pos.wsgi:application 
+web: poetry run gunicorn pos.wsgi:application 
