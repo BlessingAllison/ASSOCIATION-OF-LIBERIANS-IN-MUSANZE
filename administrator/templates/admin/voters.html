@@ -1,0 +1,609 @@
+{% extends 'root.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <a href="#addnew" data-toggle="modal" class="btn btn-success btn-sm btn-flat"><i class="fa fa-plus"></i> Add New</a>
+        </div>
+        <div class="box-body">
+          <table id="example1" class="table table-bordered table-hover table-striped">
+            <thead style="background-color: #222D32; color:white;">
+              <th>Photo</th>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Gender</th>
+              <th>Department</th>
+              <th>Academic Level</th>
+              <th>Date of Birth</th>
+              <th>Address</th>
+              <th>Action</th>
+            </thead>
+            <tbody>
+              {% for voter in voters %}
+                <tr>
+                  <td>
+                    {% if voter.photo %}
+                      <img src="{{ voter.photo.url }}" alt="Photo" style="width: 50px; height: 50px; border-radius: 50%;">
+                    {% else %}
+                      <img src="{% static 'images/default-avatar.png' %}" alt="Default" style="width: 50px; height: 50px; border-radius: 50%;">
+                    {% endif %}
+                  </td>
+                  <td>{{ voter.admin.first_name }}</td>
+                  <td>{{ voter.admin.last_name }}</td>
+                  <td>{{ voter.admin.email }}</td>
+                  <td>{{ voter.phone }}</td>
+                  <td>{{ voter.get_gender_display }}</td>
+                  <td>{{ voter.department }}</td>
+                  <td>{{ voter.get_academic_level_display }}</td>
+                  <td>{{ voter.date_of_birth }}</td>
+                  <td>{{ voter.address }}</td>
+                  <td>
+                    <button type="button" class="btn btn-success btn-sm btn-flat edit" data-id="{{ voter.id }}" data-firstname="{{ voter.admin.first_name }}" data-lastname="{{ voter.admin.last_name }}" data-email="{{ voter.admin.email }}" data-phone="{{ voter.phone }}" data-photo="{{ voter.photo.url }}" data-dateofbirth="{{ voter.date_of_birth }}" data-address="{{ voter.address }}" data-gender="{{ voter.gender }}" data-department="{{ voter.department }}" data-academiclevel="{{ voter.academic_level }}">
+                      <i class="fa fa-edit"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-flat delete" data-id="{{ voter.id }}" data-firstname="{{ voter.admin.first_name }}" data-lastname="{{ voter.admin.last_name }}">
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+{% block modal %}
+<div class="modal fade" id="addnew">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-user"></i> Add New Voter</h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'adminViewVoters' %}" id="voterForm">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          {% if form1.errors or form2.errors %}
+            <div class="alert alert-danger">
+              <strong>Form validation failed:</strong>
+              <ul>
+                {% for field in form1 %}
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for field in form2 %}
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          
+          {{ form1.as_p }}
+          {{ form2.as_p }}
+
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit -->
+<div class="modal fade" id="edit">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>Edit Voter</b></h4>
+      </div>
+      <div class="modal-body">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'updateVoter' %}" id="editVoterForm">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="id">
+          
+          <!-- User fields -->
+          <div class="form-group">
+            <label for="first_name" class="col-sm-3 control-label">First Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="first_name" name="first_name" required>
+              <span id="first_name_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="last_name" class="col-sm-3 control-label">Last Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="last_name" name="last_name" required>
+              <span id="last_name_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" id="email" name="email" required>
+              <span id="email_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <!-- Voter fields -->
+          <div class="form-group">
+            <label for="phone" class="col-sm-3 control-label">Phone</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="phone" name="phone" required>
+              <span id="phone_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="photo" class="col-sm-3 control-label">Photo</label>
+            <div class="col-sm-9">
+              <input type="file" class="form-control" id="photo" name="photo">
+              <span id="photo_errors" class="text-danger"></span>
+              <img id="photo_preview" style="display: none; width: 100px; height: 100px; border-radius: 50%;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="date_of_birth" class="col-sm-3 control-label">Date of Birth</label>
+            <div class="col-sm-9">
+              <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+              <span id="date_of_birth_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="address" class="col-sm-3 control-label">Address</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="address" name="address" required>
+              <span id="address_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="gender" class="col-sm-3 control-label">Gender</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+              <span id="gender_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="department" class="col-sm-3 control-label">Department</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="department" name="department" required>
+              <span id="department_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="academic_level" class="col-sm-3 control-label">Academic Level</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="academic_level" name="academic_level" required>
+                <option value="">Select Academic Level</option>
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+              </select>
+              <span id="academic_level_errors" class="text-danger"></span>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+            <button type="submit" class="btn btn-primary btn-flat" name="edit"><i class="fa fa-save"></i> Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Initialize date pickers
+    $('#date_of_birth').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    $('#date_of_birth').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    // Initialize modals
+    $('#edit').modal({
+        show: false
+    });
+});
+</script>
+
+<!-- Delete -->
+<div class="modal fade" id="delete">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>Deleting...</b></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" method="POST" action="{% url 'deleteVoter' %}">
+          <input type="hidden" class="id" name="id">
+          {% csrf_token %}
+          <div class="text-center">
+            <p>DELETE VOTER</p>
+            <h2 class="bold fullname"></h2>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+          <button type="submit" class="btn btn-danger btn-flat" name="delete"><i class="fa fa-trash"></i> Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock modal %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'bower_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+{% endblock %}
+
+{% block custom_js %}
+<script src="{% static 'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    // Initialize date pickers
+    $('#date_of_birth').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    $('#date_of_birth').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    // Initialize modals
+    $('#edit').modal({
+        show: false
+    });
+
+    // Handle form submission
+    $('#voterForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        console.log('Add new voter form submitted');
+        
+        // Get form data
+        var formData = new FormData(this);
+        
+        // Add CSRF token
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        // Add action parameter
+        formData.append('action', 'add');
+        
+        // Validate all required fields
+        var requiredFields = [
+            'first_name', 'last_name', 'email',
+            'phone', 'date_of_birth', 'address',
+            'gender', 'department', 'academic_level'
+        ];
+        
+        var isValid = true;
+        requiredFields.forEach(function(field) {
+            var value = document.getElementById('id_' + field).value;
+            if (!value) {
+                isValid = false;
+                $('#' + field + '_errors').html('<span class="text-danger">This field is required</span>');
+                console.log('Missing required field:', field);
+            } else {
+                $('#' + field + '_errors').html('');
+            }
+        });
+        
+        if (!isValid) {
+            console.log('Form validation failed - missing required fields');
+            return;
+        }
+        
+        console.log('Sending AJAX request...');
+        
+        $.ajax({
+            url: $(this).attr('action'),  // Use the form's action URL
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('Success response:', response);
+                if (response.status === 'success') {
+                    // Close the modal
+                    $('#addnew').modal('hide');
+                    
+                    // Refresh the page to show the new voter
+                    location.reload();
+                } else {
+                    // Show form errors
+                    if (response.errors) {
+                        console.log('Form errors:', response.errors);
+                        // Clear existing errors
+                        $('.text-danger').remove();
+                        $('.alert-danger').remove();
+                        
+                        // Show form validation errors
+                        if (response.errors.user_form) {
+                            for (var field in response.errors.user_form) {
+                                var error = response.errors.user_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                        if (response.errors.voter_form) {
+                            for (var field in response.errors.voter_form) {
+                                var error = response.errors.voter_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                    }
+                    if (response.message) {
+                        console.log('Error message:', response.message);
+                        alert('Error: ' + response.message);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error:', error);
+                console.log('Response:', xhr.responseText);
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        console.log('Error message:', response.message);
+                        alert('Error: ' + response.message);
+                    }
+                } catch (e) {
+                    console.log('Error parsing response:', e);
+                    alert('An error occurred while processing your request');
+                }
+            }
+        });
+    });
+
+    // Handle edit button click
+    $(document).on('click', '.edit', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var firstname = $(this).data('firstname');
+        var lastname = $(this).data('lastname');
+        var email = $(this).data('email');
+        var phone = $(this).data('phone');
+        var photo = $(this).data('photo');
+        var date_of_birth = $(this).data('dateofbirth');
+        var address = $(this).data('address');
+        var gender = $(this).data('gender');
+        var department = $(this).data('department');
+        var academic_level = $(this).data('academiclevel');
+
+        console.log('Edit button clicked for voter:', {
+            id: id,
+            firstname: firstname,
+            lastname: lastname
+        });
+
+        // Get the modal element
+        var modal = $('#edit');
+        
+        // Initialize the modal if it's not already initialized
+        if (!modal.data('bs.modal')) {
+            modal.modal({
+                show: false
+            });
+        }
+
+        // Show the modal using Bootstrap's native method
+        modal.modal('show');
+
+        // Set the values in the form after the modal is shown
+        modal.on('shown.bs.modal', function() {
+            // Set hidden ID field first
+            document.getElementById('id').value = id;
+            
+            // Set user fields
+            document.getElementById('first_name').value = firstname;
+            document.getElementById('last_name').value = lastname;
+            document.getElementById('email').value = email;
+            
+            // Set voter fields
+            document.getElementById('phone').value = phone;
+            document.getElementById('date_of_birth').value = date_of_birth;
+            document.getElementById('address').value = address;
+            document.getElementById('gender').value = gender;
+            document.getElementById('department').value = department;
+            document.getElementById('academic_level').value = academic_level;
+
+            // For photo, we can't set the value directly since it's a file input
+            // Instead, we'll show the current photo in a preview
+            var photoPreview = document.getElementById('photo_preview');
+            if (photoPreview) {
+                photoPreview.src = photo;
+                photoPreview.style.display = 'block';
+            }
+
+            // Clear any existing error messages
+            $('.text-danger').remove();
+        });
+    });
+
+    // Handle edit form submission
+    $('#editVoterForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        console.log('Form submitted');
+        
+        // Get form data - FormData will automatically include all form fields
+        var formData = new FormData(this);
+        
+        // Add CSRF token from the form
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Validate all required fields
+        var requiredFields = [
+            'first_name', 'last_name', 'email',
+            'phone', 'date_of_birth', 'address',
+            'gender', 'department', 'academic_level'
+        ];
+        
+        var isValid = true;
+        requiredFields.forEach(function(field) {
+            var value = document.getElementById(field).value;
+            if (!value) {
+                isValid = false;
+                $('#' + field + '_errors').html('<span class="text-danger">This field is required</span>');
+                console.log('Missing required field:', field);
+            } else {
+                $('#' + field + '_errors').html('');
+            }
+        });
+
+        // Validate date of birth - must not be in the future
+        var dateOfBirth = document.getElementById('date_of_birth').value;
+        if (dateOfBirth) {
+            var dobDate = new Date(dateOfBirth);
+            var today = new Date();
+            if (dobDate > today) {
+                isValid = false;
+                $('#date_of_birth_errors').html('<span class="text-danger">Date of birth cannot be in the future</span>');
+                console.log('Date of birth is in the future');
+            }
+        }
+        
+        if (!isValid) {
+            console.log('Form validation failed - missing required fields');
+            return;
+        }
+        
+        console.log('Sending AJAX request...');
+        
+        $.ajax({
+            url: '{% url "updateVoter" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                console.log('Success response:', response);
+                if (response.status === 'success') {
+                    // Close the modal
+                    $('#edit').modal('hide');
+                    
+                    // Refresh the page to show the updated voter
+                    location.reload();
+                } else {
+                    // Show form errors
+                    if (response.errors) {
+                        console.log('Form errors:', response.errors);
+                        // Clear existing errors
+                        $('.text-danger').remove();
+                        
+                        // Show form validation errors
+                        if (response.errors.user_form) {
+                            for (var field in response.errors.user_form) {
+                                var error = response.errors.user_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                        if (response.errors.voter_form) {
+                            for (var field in response.errors.voter_form) {
+                                var error = response.errors.voter_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                    }
+                    if (response.message) {
+                        console.log('Error message:', response.message);
+                        alert('Error: ' + response.message);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error:', error);
+                console.log('Response:', xhr.responseText);
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        console.log('Error message:', response.message);
+                        alert('Error: ' + response.message);
+                    }
+                } catch (e) {
+                    console.log('Error parsing response:', e);
+                    alert('An error occurred while processing your request');
+                }
+            }
+        });
+    });
+
+    // Handle delete button click
+    $(document).on('click', '.delete', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var firstname = $(this).data('firstname');
+        var lastname = $(this).data('lastname');
+        
+        if (confirm('Are you sure you want to delete ' + firstname + ' ' + lastname + '?')) {
+            $.ajax({
+                url: '{% url "deleteVoter" %}',
+                type: 'POST',
+                data: { id: id, csrfmiddlewaretoken: '{{ csrf_token }}' },
+                success: function(response) {
+                    if (response.code === 200) {
+                        location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting voter');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock custom_js %}

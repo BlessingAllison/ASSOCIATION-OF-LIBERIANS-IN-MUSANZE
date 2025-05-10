@@ -1,0 +1,119 @@
+{% extends 'root.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Register</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" id="registerForm">
+                            {% csrf_token %}
+                            
+                            {% if form1.errors or form2.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>Form validation failed:</strong>
+                                    <ul>
+                                        {% for field in form1 %}
+                                            {% for error in field.errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% for field in form2 %}
+                                            {% for error in field.errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            
+                            {{ form1.as_p }}
+                            {{ form2.as_p }}
+                            
+                            <button type="submit" class="btn btn-primary btn-block">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    // Initialize date picker
+    $('#date_of_birth').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd'
+    });
+
+    // Handle form submission
+    $('#registerForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "account_register" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Show success message
+                    alert('Account created successfully! You can login now.');
+                    // Redirect to login page
+                    window.location.href = '{% url "account_login" %}';
+                } else {
+                    // Show form errors
+                    if (response.errors) {
+                        // Clear existing errors
+                        $('.text-danger').remove();
+                        $('.alert-danger').remove();
+                        
+                        // Show form validation errors
+                        if (response.errors.user_form) {
+                            for (var field in response.errors.user_form) {
+                                var error = response.errors.user_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                        if (response.errors.voter_form) {
+                            for (var field in response.errors.voter_form) {
+                                var error = response.errors.voter_form[field][0];
+                                $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                            }
+                        }
+                    }
+                    if (response.message) {
+                        alert('Error: ' + response.message);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error:', error);
+                console.log('Response:', xhr.responseText);
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        alert('Error: ' + response.message);
+                    }
+                } catch (e) {
+                    alert('An error occurred while processing your request');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock custom_js %}

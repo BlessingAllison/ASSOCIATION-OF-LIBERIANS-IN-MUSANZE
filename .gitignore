@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# MySQL
+*.myd
+*.myi
+*.frm
+*.ibd
+*.opt
+*.trn
+*.trg
+*.par
+*.ib_logfile*
+*.pid
+*.err
+*.cnf
+mysql/
+
+# Environment variables
+.env
+.env.local
+
+# Requirements
+requirements/local.txt
+requirements/production.txt
+
+# Project specific
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.o
+*.a
+*.lib
+*.la
+*.lo
+*.lai
+*.a
+*.lib
+*.la
+*.lo
+*.lai

@@ -1,0 +1,7 @@
+Django==3.1.7
+mysql-connector-python==9.3.0
+python-dotenv==1.0.0
+Pillow==10.0.0
+virtualenv==20.0.31
+django-renderpdf
+requests
