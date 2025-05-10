@@ -8,7 +8,7 @@ services:
       mkdir -p bower_components
       mkdir -p staticfiles
       bower install --allow-root --config.interactive=false --config.directory=bower_components
-      python manage.py collectstatic --noinput --clear --verbosity 3
+      python manage.py collectstatic --noinput --clear --verbosity 3 --ignore="*.map"
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
