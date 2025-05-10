@@ -122,13 +122,12 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'bower_components'),
-    # Remove redundant subdirectories if they are under 'static/'
-    # os.path.join(BASE_DIR, 'static/dist'),
-    # os.path.join(BASE_DIR, 'static/plugins'),
-    # os.path.join(BASE_DIR, 'static/toastr'),
+    os.path.join(BASE_DIR, 'static/dist'),
+    os.path.join(BASE_DIR, 'static/plugins'),
+    os.path.join(BASE_DIR, 'static/toastr'),
+    os.path.join(BASE_DIR, 'static/bower_components'),
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # Use manifest for better caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
