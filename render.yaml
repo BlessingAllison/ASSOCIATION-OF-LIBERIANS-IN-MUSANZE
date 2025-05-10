@@ -15,3 +15,4 @@ services:
         value: gateway01.eu-central-1.prod.aws.tidbcloud.com
       - key: TIDB_DB_PORT
         value: "4000"
+    pythonPath: /opt/render/project/src
