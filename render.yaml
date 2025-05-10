@@ -16,3 +16,4 @@ services:
       - key: TIDB_DB_PORT
         value: "4000"
     pythonPath: /opt/render/project/src
+    rootDirectory: /opt/render/project/src
