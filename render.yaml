@@ -1,14 +1,20 @@
 services:
   - type: web
-    name: django-app
+    name: online-voting-system
     env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      mkdir -p /opt/render/project/src/staticfiles
-      cd /opt/render/project/src
-      python manage.py collectstatic --noinput --clear
+    buildCommand: python -m pip install -r requirements.txt
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "alm-online-voting-system.onrender.com,127.0.0.1,localhost"
+      - key: SECURE_PROXY_SSL_HEADER
+        value: "HTTP_X_FORWARDED_PROTO,https"
+      - key: USE_X_FORWARDED_HOST
+        value: "True"
+      - key: USE_X_FORWARDED_PORT
+        value: "True"
       - key: TIDB_DB_NAME
         value: test
       - key: TIDB_DB_USER
@@ -19,5 +25,13 @@ services:
         value: gateway01.eu-central-1.prod.aws.tidbcloud.com
       - key: TIDB_DB_PORT
         value: "4000"
+      - key: DATABASE_URL
+        value: "mysql://user:password@host:port/database"
+      - key: SECRET_KEY
+        value: "your-secret-key-here"
     pythonPath: /opt/render/project/src
     rootDirectory: /opt/render/project/src
+    buildImage:
+      dockerfile: Dockerfile
+      context: .
+    autoDeploy: true
