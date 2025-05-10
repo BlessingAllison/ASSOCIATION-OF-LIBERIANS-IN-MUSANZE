@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: django-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn e_voting.wsgi --bind 0.0.0.0:$PORT
+    envVars:
+      - key: TIDB_DB_NAME
+        value: test
+      - key: TIDB_DB_USER
+        value: 3qQmvWwgcRatJ3q.root
+      - key: TIDB_DB_PASSWORD
+        value: XfrrSTz4Uv9XwsjE
+      - key: TIDB_DB_HOST
+        value: gateway01.eu-central-1.prod.aws.tidbcloud.com
+      - key: TIDB_DB_PORT
+        value: "4000"
