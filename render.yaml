@@ -6,6 +6,7 @@ services:
       python -m pip install -r requirements.txt
       npm install -g bower
       mkdir -p bower_components
+      mkdir -p staticfiles
       bower install --allow-root --config.interactive=false --config.directory=bower_components
       python manage.py collectstatic --noinput --clear --verbosity 3
       python manage.py migrate
