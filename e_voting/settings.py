@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from a .env file
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Add this line
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,9 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'account.middleware.AccountCheckMiddleWare',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Added WhiteNoise middleware
 ]
 
 ROOT_URLCONF = 'e_voting.urls'
@@ -161,6 +160,8 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    USE_X_FORWARDED_HOST = True
+    USE_X_FORWARDED_PORT = True
 
 AUTH_USER_MODEL = 'account.CustomUser'
 AUTHENTICATION_BACKENDS = ['account.email_backend.EmailBackend']
