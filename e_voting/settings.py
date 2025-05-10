@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+import logging
 from dotenv import load_dotenv
 
 # Load environment variables from a .env file
@@ -20,6 +21,20 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Add this logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -31,7 +46,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'szo6&t&t=i$2(0@buc!dlz)+h_$_1bqp(brj7$c50t
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Get the domain from environment variable or use default
-ALLOWED_HOSTS = ['alm-online-voting-platform.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['alm-online-voting-system.onrender.com', '127.0.0.1', 'localhost']
 
 # Add CORS settings
 CORS_ORIGIN_ALLOW_ALL = True
@@ -149,24 +164,25 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Add this to ensure static files directory exists
+if not os.path.exists(STATIC_ROOT):
+    os.makedirs(STATIC_ROOT)
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Add these settings to fix 400 Bad Request errors
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
 # Add secure SSL settings for production
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    USE_X_FORWARDED_HOST = True
-    USE_X_FORWARDED_PORT = True
-else:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    USE_X_FORWARDED_HOST = True
-    USE_X_FORWARDED_PORT = True
 
 AUTH_USER_MODEL = 'account.CustomUser'
 AUTHENTICATION_BACKENDS = ['account.email_backend.EmailBackend']
