@@ -4,6 +4,8 @@ services:
     env: python
     buildCommand: |
       python -m pip install -r requirements.txt
+      npm install -g bower
+      bower install
       mkdir -p staticfiles
       python manage.py collectstatic --noinput --clear
       python manage.py migrate
@@ -19,20 +21,20 @@ services:
         value: "True"
       - key: USE_X_FORWARDED_PORT
         value: "True"
-      - key: TIDB_DB_NAME
-        value: test
-      - key: TIDB_DB_USER
-        value: 3qQmvWwgcRatJ3q.root
-      - key: TIDB_DB_PASSWORD
-        value: XfrrSTz4Uv9XwsjE
-      - key: TIDB_DB_HOST
-        value: gateway01.eu-central-1.prod.aws.tidbcloud.com
-      - key: TIDB_DB_PORT
-        value: "4000"
       - key: DATABASE_URL
         value: "mysql://user:password@host:port/database"
       - key: SECRET_KEY
         value: "your-secret-key-here"
+      - key: TIDB_DB_NAME
+        value: test
+      - key: TIDB_DB_USER
+        value: test
+      - key: TIDB_DB_PASSWORD
+        value: test
+      - key: TIDB_DB_HOST
+        value: gateway01.eu-central-1.prod.aws.tidbcloud.com
+      - key: TIDB_DB_PORT
+        value: "4000"
     pythonPath: /opt/render/project/src
     rootDirectory: /opt/render/project/src
     buildImage:
