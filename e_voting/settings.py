@@ -126,16 +126,21 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static/plugins'),
     os.path.join(BASE_DIR, 'static/toastr'),
     os.path.join(BASE_DIR, 'static/bower_components'),
+    os.path.join(BASE_DIR, 'static/css'),
+    os.path.join(BASE_DIR, 'static/js'),
+    os.path.join(BASE_DIR, 'static/img'),
 ]
+
+# Ensure all static files directories exist
+for dir_path in STATICFILES_DIRS:
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
-
-# Ensure static files directory exists
-if not os.path.exists(STATIC_ROOT):
-    os.makedirs(STATIC_ROOT)
 
 # Media files
 MEDIA_URL = '/media/'
