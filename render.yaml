@@ -5,7 +5,8 @@ services:
     buildCommand: |
       pip install -r requirements.txt
       mkdir -p /opt/render/project/src/staticfiles
-      python manage.py collectstatic --noinput
+      cd /opt/render/project/src
+      python manage.py collectstatic --noinput --clear
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: TIDB_DB_NAME
