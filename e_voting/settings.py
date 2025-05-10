@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'szo6&t&t=i$2(0@buc!dlz)+h_$_1bqp(brj7$c50t
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Get the domain from environment variable or use default
-ALLOWED_HOSTS = [os.getenv('DOMAIN', 'alm-online-voting-platform.onrender.com')]
+ALLOWED_HOSTS = ['alm-online-voting-platform.onrender.com', '127.0.0.1', 'localhost']
 
 # Add CORS settings
 CORS_ORIGIN_ALLOW_ALL = True
