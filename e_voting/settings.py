@@ -20,13 +20,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '%6lp_p!%r$7t-2ql5hc5(r@)8u_fc+6@ugxcnz=h=b(fn#3$p9'
+SECRET_KEY = os.getenv('SECRET_KEY', 'szo6&t&t=i$2(0@buc!dlz)+h_$_1bqp(brj7$c50t_nyvgy$f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+# Get the domain from environment variable or use default
+ALLOWED_HOSTS = [os.getenv('DOMAIN', 'alm-online-voting-platform.onrender.com')]
 
+# Add CORS settings
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -42,10 +46,12 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'voting.apps.VotingConfig',
     'administrator.apps.AdministratorConfig',
+    'corsheaders',  # Add this line
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add this line
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,7 +94,7 @@ DATABASES = {
         'ENGINE': 'mysql.connector.django',
         'NAME': 'voting_system',
         'USER': 'root',
-        'PASSWORD': 'blessing',
+        'PASSWORD': 'Voting@2025',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
@@ -136,14 +142,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-MEDIA_URL = '/media/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'static/bower_components')
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'account.CustomUser'
 AUTHENTICATION_BACKENDS = ['account.email_backend.EmailBackend']
