@@ -4,7 +4,8 @@ services:
     env: python
     buildCommand: |
       python -m pip install -r requirements.txt
-      python manage.py collectstatic --noinput
+      mkdir -p staticfiles
+      python manage.py collectstatic --noinput --clear
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
