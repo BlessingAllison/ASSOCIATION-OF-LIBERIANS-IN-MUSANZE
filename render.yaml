@@ -5,10 +5,9 @@ services:
     buildCommand: |
       python -m pip install -r requirements.txt
       npm install -g bower
-      cat bower.json  # Log bower.json for debugging
+      mkdir -p bower_components
       bower install --allow-root --config.interactive=false --config.directory=bower_components
-      ls -R bower_components  # Log bower_components contents
-      python manage.py collectstatic --noinput --verbosity 3
+      python manage.py collectstatic --noinput --clear --verbosity 3
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
