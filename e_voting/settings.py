@@ -97,11 +97,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'mysql.connector.django',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+        'NAME': os.getenv('TIDB_DB_NAME'),
+        'USER': os.getenv('TIDB_DB_USER'),
+        'PASSWORD': os.getenv('TIDB_DB_PASSWORD'),
+        'HOST': os.getenv('TIDB_DB_HOST'),
+        'PORT': os.getenv('TIDB_DB_PORT', '4000'),
         'OPTIONS': {
             'charset': 'utf8mb4',
             'use_pure': True
