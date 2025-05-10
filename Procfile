@@ -1,1 +1,1 @@
-web: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
+web: PYTHONPATH=/opt/render/project/src gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
