@@ -8,6 +8,7 @@ services:
       mkdir -p bower_components
       mkdir -p staticfiles
       bower install --allow-root --config.interactive=false --config.directory=bower_components
+      python manage.py collectstatic --noinput --clear --verbosity 3
       python manage.py collectstatic --noinput --clear --verbosity 3 --ignore="*.map"
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
@@ -34,6 +35,10 @@ services:
         value: "gateway01.eu-central-1.prod.aws.tidbcloud.com"
       - key: TIDB_DB_PORT
         value: "4000"
+      - key: STATIC_URL
+        value: "/static/"
+      - key: STATIC_ROOT
+        value: "/opt/render/project/src/staticfiles/"
     pythonPath: /opt/render/project/src
     rootDirectory: /opt/render/project/src
     buildImage:
