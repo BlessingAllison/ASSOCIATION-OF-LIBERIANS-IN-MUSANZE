@@ -5,12 +5,10 @@ services:
     buildCommand: |
       python -m pip install -r requirements.txt
       npm install -g bower
-      mkdir -p bower_components
-      mkdir -p static/dist
-      mkdir -p static/plugins
-      mkdir -p static/toastr
+      cat bower.json  # Log bower.json for debugging
       bower install --allow-root --config.interactive=false --config.directory=bower_components
-      python manage.py collectstatic --noinput --clear --verbosity 3
+      ls -R bower_components  # Log bower_components contents
+      python manage.py collectstatic --noinput --verbosity 3
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
@@ -24,18 +22,16 @@ services:
         value: "True"
       - key: USE_X_FORWARDED_PORT
         value: "True"
-      - key: DATABASE_URL
-        value: "mysql://user:password@host:port/database"
       - key: SECRET_KEY
-        value: "your-secret-key-here"
+        sync: false
       - key: TIDB_DB_NAME
-        value: test
+        sync: false
       - key: TIDB_DB_USER
-        value: test
+        sync: false
       - key: TIDB_DB_PASSWORD
-        value: test
+        sync: false
       - key: TIDB_DB_HOST
-        value: gateway01.eu-central-1.prod.aws.tidbcloud.com
+        value: "gateway01.eu-central-1.prod.aws.tidbcloud.com"
       - key: TIDB_DB_PORT
         value: "4000"
     pythonPath: /opt/render/project/src
