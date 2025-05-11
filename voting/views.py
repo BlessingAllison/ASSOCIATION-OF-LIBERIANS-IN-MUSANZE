@@ -39,9 +39,30 @@ def generate_ballot(display_controls=False):
                 instruction = "Select only one candidate"
                 input_box = '<input value="'+str(candidate.id)+'" type="radio" class="flat-red ' + \
                     position_name+'" name="'+position_name+'">'
-            image = "/media/" + str(candidate.photo)
+            
+            # Handle candidate photo URL
+            if candidate.photo:
+                try:
+                    # First try to get the URL directly from the file field
+                    # This will work for both Cloudinary and local storage
+                    image_url = candidate.photo.url
+                    
+                    # If using Cloudinary, the URL will be absolute, so no need to modify
+                    # For local storage, the URL will be relative to MEDIA_URL
+                    if not image_url.startswith(('http://', 'https://')):
+                        # Ensure it has a leading slash for local paths
+                        if not image_url.startswith('/'):
+                            image_url = '/' + image_url
+                except Exception as e:
+                    # If there's any error getting the URL, fall back to placeholder
+                    print(f"Error getting photo URL for candidate {candidate.id}: {str(e)}")
+                    image_url = "/static/images/userplaceholder.png"
+            else:
+                # Fallback to placeholder if no photo
+                image_url = "/static/images/userplaceholder.png"
+                
             candidates_data = candidates_data + '<li>' + input_box + '<button type="button" class="btn btn-primary btn-sm btn-flat clist platform" data-fullname="'+candidate.fullname+'" data-bio="'+candidate.bio+'"><i class="fa fa-search"></i> Platform</button><img src="' + \
-                image+'" height="100px" width="100px" class="clist"><span class="cname clist">' + \
+                image_url+'" height="100px" width="100px" class="clist"><span class="cname clist">' + \
                 candidate.fullname+'</span></li>'
         up = ''
         if position.priority == 1:
