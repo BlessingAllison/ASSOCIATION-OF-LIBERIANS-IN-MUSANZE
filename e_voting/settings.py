@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'voting.apps.VotingConfig',
     'administrator.apps.AdministratorConfig',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 # Consolidated middleware configuration
@@ -142,6 +144,14 @@ for directory in STATICFILES_DIRS:
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Simplified static files storage for production
 if not DEBUG:
