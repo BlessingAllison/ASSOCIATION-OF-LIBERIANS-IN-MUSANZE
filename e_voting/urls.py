@@ -23,8 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include(('account.urls', 'account'), namespace='account')),
     path('', include(('voting.urls', 'voting'), namespace='voting')),
-    # Redirect root URL to the custom login page
-    path('', RedirectView.as_view(url=reverse_lazy('account:account_login'), permanent=False)),
+    # Redirect root URL to the login page
+    path('', RedirectView.as_view(url=reverse_lazy('account:account_login'), query_string=True, permanent=False)),
 ]
 
 # Serve static and media files in development
