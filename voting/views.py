@@ -108,9 +108,9 @@ def dashboard(request):
             # Bypass
             msg = bypass_otp()
             messages.success(request, msg)
-            return redirect(reverse('show_ballot'))
+            return redirect(reverse('voting:show_ballot'))
         else:
-            return redirect(reverse('voterVerify'))
+            return redirect(reverse('voting:voterVerify'))
     else:
         if user.voter.voted:  # * User has voted
             # To display election result or candidates I voted for ?
@@ -119,7 +119,7 @@ def dashboard(request):
             }
             return render(request, "voting/voter/result.html", context)
         else:
-            return redirect(reverse('show_ballot'))
+            return redirect(reverse('voting:show_ballot'))
 
 
 def verify(request):
@@ -229,14 +229,14 @@ def verify_otp(request):
                 voter.save()
                 error = False
     if error:
-        return redirect(reverse('voterVerify'))
-    return redirect(reverse('show_ballot'))
+        return redirect(reverse('voting:voterVerify'))
+    return redirect(reverse('voting:show_ballot'))
 
 
 def show_ballot(request):
     if request.user.voter.voted:
         messages.error(request, "You have voted already")
-        return redirect(reverse('voterDashboard'))
+        return redirect(reverse('voting:voterDashboard'))
     ballot = generate_ballot(display_controls=False)
     context = {
         'ballot': ballot
@@ -322,13 +322,13 @@ def preview_vote(request):
 def submit_ballot(request):
     if request.method != 'POST':
         messages.error(request, "Please, browse the system properly")
-        return redirect(reverse('show_ballot'))
+        return redirect(reverse('voting:show_ballot'))
 
     # Verify if the voter has voted or not
     voter = request.user.voter
     if voter.voted:
         messages.error(request, "You have voted already")
-        return redirect(reverse('voterDashboard'))
+        return redirect(reverse('voting:voterDashboard'))
 
     form = dict(request.POST)
     form.pop('csrfmiddlewaretoken', None)  # Pop CSRF Token
@@ -337,7 +337,7 @@ def submit_ballot(request):
     # Ensure at least one vote is selected
     if len(form.keys()) < 1:
         messages.error(request, "Please select at least one candidate")
-        return redirect(reverse('show_ballot'))
+        return redirect(reverse('voting:show_ballot'))
     positions = Position.objects.all()
     form_count = 0
     for position in positions:
@@ -352,7 +352,7 @@ def submit_ballot(request):
             if len(form_position) > max_vote:
                 messages.error(request, "You can only choose " +
                                str(max_vote) + " candidates for " + position.name)
-                return redirect(reverse('show_ballot'))
+                return redirect(reverse('voting:show_ballot'))
             else:
                 for form_candidate_id in form_position:
                     form_count += 1
@@ -367,7 +367,7 @@ def submit_ballot(request):
                     except Exception as e:
                         messages.error(
                             request, "Please, browse the system properly " + str(e))
-                        return redirect(reverse('show_ballot'))
+                        return redirect(reverse('voting:show_ballot'))
         else:
             this_key = pos
             form_position = form.get(this_key)
@@ -387,7 +387,7 @@ def submit_ballot(request):
             except Exception as e:
                 messages.error(
                     request, "Please, browse the system properly " + str(e))
-                return redirect(reverse('show_ballot'))
+                return redirect(reverse('voting:show_ballot'))
     # Count total number of records inserted
     # Check it viz-a-viz form_count
     inserted_votes = Votes.objects.filter(voter=voter)
@@ -395,10 +395,10 @@ def submit_ballot(request):
         # Delete
         inserted_votes.delete()
         messages.error(request, "Please try voting again!")
-        return redirect(reverse('show_ballot'))
+        return redirect(reverse('voting:show_ballot'))
     else:
         # Update Voter profile to voted
         voter.voted = True
         voter.save()
         messages.success(request, "Thanks for voting")
-        return redirect(reverse('voterDashboard'))
+        return redirect(reverse('voting:voterDashboard'))
