@@ -36,7 +36,7 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                             request, "You do not have access to this resource")
                         return redirect(reverse('voting:voterDashboard'))
                 else:  # None of the aforementioned ? Please take the user to login page
-                    return redirect('account:account_login')
+                    return redirect('account:login')
             except NoReverseMatch as e:
                 # Log the error and allow the request to continue
                 import logging
@@ -50,4 +50,4 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 
             # If we get here, the user is not authenticated and not on a public path
             # Redirect to login with next parameter
-            return redirect(f"{reverse('account:account_login')}?next={request.path}")
+            return redirect(f"{reverse('account:login')}?next={request.path}")
