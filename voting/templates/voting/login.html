@@ -13,7 +13,7 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            <form action="{% url 'account_login' %}" method="POST" id="loginForm">
+            <form action="{% url 'account:login' %}" method="POST" id="loginForm">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.GET.next }}">
                 <div class="form-group has-feedback">

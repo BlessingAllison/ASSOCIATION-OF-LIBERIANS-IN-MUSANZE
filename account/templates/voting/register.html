@@ -73,7 +73,7 @@ $(document).ready(function() {
                     // Show success message
                     alert('Account created successfully! You can login now.');
                     // Redirect to login page
-                    window.location.href = '{% url "account_login" %}';
+                    window.location.href = '{% url "account:login" %}';
                 } else {
                     // Show form errors
                     if (response.errors) {
