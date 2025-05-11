@@ -121,7 +121,7 @@ USE_TZ = True
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'static/dist'),
-    os.path.join(BASE_DIR, 'static/plugins'),
+    os.path.join(BASE_DIR, 'static/plugins/icheck'),
     os.path.join(BASE_DIR, 'static/toastr'),
     os.path.join(BASE_DIR, 'static/bower_components'),
     os.path.join(BASE_DIR, 'static/css'),
