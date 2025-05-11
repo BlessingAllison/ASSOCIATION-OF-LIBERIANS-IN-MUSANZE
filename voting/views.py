@@ -13,7 +13,7 @@ import json
 
 def index(request):
     if not request.user.is_authenticated:
-        return redirect(reverse('account:account_login'))
+        return redirect(reverse('account:login'))
     return redirect('/dashboard/')
 
 

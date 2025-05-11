@@ -1,10 +1,12 @@
-from django.shortcuts import render
-from account.views import login as account_login
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from account.views import account_login
+
 # Create your views here.
 
 
 def index(request):
     if not request.user.is_authenticated:
-        return account_login(request)
+        return redirect(reverse('account:login'))
     context = {}
     # return render(request, "voting/login.html", context)
