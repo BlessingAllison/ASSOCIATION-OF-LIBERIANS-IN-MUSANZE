@@ -40,7 +40,7 @@ def account_login(request):
                 return JsonResponse({'error': 'Invalid email or password'}, status=400)
             else:
                 messages.error(request, "Invalid email or password")
-                return redirect("/")
+                return redirect(reverse("account:login"))
 
     return render(request, "voting/login.html", context)
 
@@ -68,7 +68,7 @@ def account_register(request):
                 })
             
             messages.success(request, "Account created successfully! You can now log in.")
-            return redirect('account_login')
+            return redirect('account:login')
         else:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -95,4 +95,4 @@ def account_logout(request):
         messages.error(
             request, "You need to be logged in to perform this action")
 
-    return redirect(reverse("account_login"))
+    return redirect(reverse("account:login"))
