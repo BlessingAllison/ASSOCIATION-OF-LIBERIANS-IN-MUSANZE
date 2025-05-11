@@ -88,3 +88,4 @@ requirements/production.txt
 *.la
 *.lo
 *.lai
+media/
