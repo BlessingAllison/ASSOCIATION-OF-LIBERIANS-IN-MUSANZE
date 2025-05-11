@@ -20,8 +20,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('account/', include('account.urls')),
-    path('', include('voting.urls')),
+    path('account/', include(('account.urls', 'account'), namespace='account')),
+    path('', include(('voting.urls', 'voting'), namespace='voting')),
 ]
 
 # Serve static and media files in development

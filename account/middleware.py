@@ -11,8 +11,8 @@ class AccountCheckMiddleWare(MiddlewareMixin):
         
         # Define paths that don't require authentication
         public_paths = [
-            reverse('account_login'),
-            reverse('account_register'),
+            '/account/login/',
+            '/account/register/',
             '/admin/',
             '/static/',
             '/media/'
@@ -26,34 +26,29 @@ class AccountCheckMiddleWare(MiddlewareMixin):
             try:
                 if user.user_type == '1':  # Admin
                     if modulename == 'voting.views':
-                        try:
-                            if request.path != reverse('voting:fetch_ballot'):
-                                messages.error(
-                                    request, "You do not have access to this resource")
-                                return redirect(reverse('adminDashboard'))
-                        except NoReverseMatch:
-                            pass  # Skip if URL can't be reversed
+                        if request.path != reverse('voting:fetch_ballot'):
+                            messages.error(
+                                request, "You do not have access to this resource")
+                            return redirect('admin:index')
                 elif user.user_type == '2':  # Voter
                     if modulename == 'administrator.views':
                         messages.error(
                             request, "You do not have access to this resource")
-                        return redirect(reverse('voting:voterDashboard'))
+                        return redirect('voting:voterDashboard')
                 else:  # None of the aforementioned ? Please take the user to login page
-                    return redirect(reverse('account_login'))
-            except Exception as e:
+                    return redirect('account:account_login')
+            except NoReverseMatch as e:
                 # Log the error and allow the request to continue
                 import logging
                 logger = logging.getLogger(__name__)
-                logger.error(f"Error in middleware: {str(e)}")
+                logger.error(f"URL reversal error in middleware: {str(e)}")
+                return None
         else:
             # If the path is login or has anything to do with authentication, pass
-            try:
-                if request.path == reverse('account_login') or request.path == reverse('account_register') or modulename == 'django.contrib.auth.views':
-                    return None
-            except NoReverseMatch:
-                pass
+            if request.path in ['/account/login/', '/account/register/'] or modulename == 'django.contrib.auth.views':
+                return None
                 
             # If we get here, the user is not authenticated and not on a public path
-            return redirect(reverse('account_login'))
+            return redirect('account:account_login')
             
         return None
