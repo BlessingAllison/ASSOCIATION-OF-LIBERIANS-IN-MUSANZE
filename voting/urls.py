@@ -2,8 +2,10 @@ from django.http import HttpResponseNotFound
 from django.urls import path
 from . import views
 
+app_name = 'voting'  
+
 urlpatterns = [
-    path('', views.index),
+    path('', views.index, name='index'),
     path('ballot/fetch/', views.fetch_ballot, name='fetch_ballot'),
     path('dashboard/', views.dashboard, name='voterDashboard'),
     path('verify/', views.verify, name='voterVerify'),
@@ -12,5 +14,5 @@ urlpatterns = [
     path('ballot/vote', views.show_ballot, name='show_ballot'),
     path('ballot/vote/preview', views.preview_vote, name='preview_vote'),
     path('ballot/vote/submit', views.submit_ballot, name='submit_ballot'),
-    path('favicon.ico', lambda x: HttpResponseNotFound()),  # Add this line to return 404 for missing favicon
+    path('favicon.ico', lambda x: HttpResponseNotFound()),  
 ]
