@@ -1,4 +1,3 @@
-```html
 {% extends "voting/base.html" %}
 {% block content %}
     <div class="login-box">
@@ -6,8 +5,17 @@
             <b>ASSOCIATION OF LIBERIAS IN MUSANZE ONLINE VOTING SYSTEM</b>
         </div>
         <div class="login-box-body">
-            <form action="{% url 'account_login' %}" method="POST">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form action="{% url 'account_login' %}" method="POST" id="loginForm">
                 {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
                 <div class="form-group has-feedback">
                     <input type="text" class="form-control" name="email" placeholder="Email" required>
                     <span class="fa fa-envelope form-control-feedback"></span>
@@ -28,4 +36,44 @@
         </div>
     </div>
 {% endblock content %}
-```
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle form submission
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        
+        // Add CSRF token to the form data
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+        
+        // Submit the form using AJAX
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // If login is successful, redirect to the next URL or dashboard
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                } else {
+                    window.location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    alert(xhr.responseJSON.error);
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -5,6 +5,10 @@ from django.contrib import messages
 from .forms import CustomUserForm
 from voting.forms import VoterForm
 from django.contrib.auth import login, logout
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 
 
@@ -19,15 +23,24 @@ def account_login(request):
     if request.method == 'POST':
         user = EmailBackend.authenticate(request, username=request.POST.get(
             'email'), password=request.POST.get('password'))
-        if user != None:
+        if user is not None:
             login(request, user)
-            if user.user_type == '1':
-                return redirect(reverse("adminDashboard"))
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                if user.user_type == '1':
+                    return JsonResponse({'redirect': reverse("adminDashboard")})
+                else:
+                    return JsonResponse({'redirect': reverse("voting:voterDashboard")})
             else:
-                return redirect(reverse("voting:voterDashboard"))
+                if user.user_type == '1':
+                    return redirect(reverse("adminDashboard"))
+                else:
+                    return redirect(reverse("voting:voterDashboard"))
         else:
-            messages.error(request, "Invalid details")
-            return redirect("/")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Invalid email or password'}, status=400)
+            else:
+                messages.error(request, "Invalid email or password")
+                return redirect("/")
 
     return render(request, "voting/login.html", context)
 
@@ -48,16 +61,16 @@ def account_register(request):
             user.save()
             voter.save()
             
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'success',
-                    'message': 'Account created successfully'
+                    'message': 'Account created successfully! You can now log in.'
                 })
             
-            messages.success(request, "Account created. You can login now!")
-            return redirect(reverse('account_login'))
+            messages.success(request, "Account created successfully! You can now log in.")
+            return redirect('account_login')
         else:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
                     'message': 'Form validation failed',
