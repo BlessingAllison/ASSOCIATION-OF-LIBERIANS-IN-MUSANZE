@@ -129,10 +129,15 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'voting/static'),
-    os.path.join(BASE_DIR, 'account/static'),
-    os.path.join(BASE_DIR, 'administrator/static'),
+    # Only include directories that exist
 ]
+
+# Add any additional static files directories that exist
+for app in INSTALLED_APPS:
+    if not app.startswith('django.') and not app.startswith('admin'):
+        app_static = os.path.join(BASE_DIR, app, 'static')
+        if os.path.exists(app_static) and os.path.isdir(app_static):
+            STATICFILES_DIRS.append(app_static)
 
 # Simplified static files storage for production
 if not DEBUG:

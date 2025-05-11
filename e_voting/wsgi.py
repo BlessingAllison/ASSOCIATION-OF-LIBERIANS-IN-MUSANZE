@@ -27,8 +27,13 @@ application = WhiteNoise(
     prefix='static/'
 )
 
-# Add additional directories to the WhiteNoise processed files
-application.add_files(os.path.join(BASE_DIR, 'static'), prefix='static/')
-application.add_files(os.path.join(BASE_DIR, 'voting/static'), prefix='static/')
-application.add_files(os.path.join(BASE_DIR, 'account/static'), prefix='static/')
-application.add_files(os.path.join(BASE_DIR, 'administrator/static'), prefix='static/')
+# Add static files from the main static directory
+main_static = os.path.join(BASE_DIR, 'static')
+if os.path.exists(main_static):
+    application.add_files(main_static, prefix='static/')
+
+# Add static files from app directories
+for app in os.listdir(BASE_DIR):
+    app_static = os.path.join(BASE_DIR, app, 'static')
+    if os.path.exists(app_static) and os.path.isdir(app_static):
+        application.add_files(app_static, prefix='static/')
