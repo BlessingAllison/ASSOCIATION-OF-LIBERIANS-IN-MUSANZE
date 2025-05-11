@@ -14,7 +14,7 @@ import json
 def index(request):
     if not request.user.is_authenticated:
         return account_login(request)
-    return redirect('voterDashboard')
+    return redirect('voting:voterDashboard')
 
 
 def generate_ballot(display_controls=False):
