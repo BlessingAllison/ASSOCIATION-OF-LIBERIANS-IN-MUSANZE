@@ -120,20 +120,25 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Additional locations of static files
+# Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'voting/static'),
+    os.path.join(BASE_DIR, 'account/static'),
+    os.path.join(BASE_DIR, 'administrator/static'),
 ]
 
 # Simplified static files storage for production
 if not DEBUG:
+    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     # Ensure STATIC_ROOT exists
     os.makedirs(STATIC_ROOT, exist_ok=True)

@@ -1,50 +1,35 @@
+databases:
+  - name: alm_db
+    databaseName: alm_db
+    user: alm_user
+    plan: free
+
 services:
   - type: web
-    name: online-voting-system
+    name: alm-voting
     env: python
-    buildCommand: |
-      python -m pip install -r requirements.txt
-      npm install -g bower
-      mkdir -p bower_components
-      mkdir -p staticfiles
-      bower install --allow-root --config.interactive=false --config.directory=bower_components
-      python manage.py collectstatic --noinput --clear
-      python manage.py migrate
-    startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
-      - key: DEBUG
+      - key: DATABASE_URL
+        fromDatabase:
+          name: alm_db
+          property: connectionString
+      - key: DJANGO_SETTINGS_MODULE
+        value: e_voting.settings
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
         value: "False"
-      - key: ALLOWED_HOSTS
-        value: "alm-online-voting-system.onrender.com,127.0.0.1,localhost"
-      - key: SECURE_PROXY_SSL_HEADER
-        value: "HTTP_X_FORWARDED_PROTO,https"
-      - key: USE_X_FORWARDED_HOST
-        value: "True"
-      - key: USE_X_FORWARDED_PORT
-        value: "True"
-      - key: SECRET_KEY
+      - key: CLOUDINARY_CLOUD_NAME
         sync: false
-      - key: TIDB_DB_NAME
+      - key: CLOUDINARY_API_KEY
         sync: false
-      - key: TIDB_DB_USER
+      - key: CLOUDINARY_API_SECRET
         sync: false
-      - key: TIDB_DB_PASSWORD
-        sync: false
-      - key: TIDB_DB_HOST
-        value: "gateway01.eu-central-1.prod.aws.tidbcloud.com"
-      - key: TIDB_DB_PORT
-        value: "4000"
-      - key: STATIC_URL
-        value: "/static/"
-      - key: STATIC_ROOT
-        value: "/opt/render/project/src/staticfiles/"
-      - key: STATICFILES_DIRS
-        value: "/opt/render/project/src/static,/opt/render/project/src/static/dist,/opt/render/project/src/static/plugins,/opt/render/project/src/static/toastr,/opt/render/project/src/static/bower_components,/opt/render/project/src/static/css,/opt/render/project/src/static/js,/opt/render/project/src/static/img,/opt/render/project/src/account/static,/opt/render/project/src/voting/static,/opt/render/project/src/administrator/static"
-      - key: STATICFILES_STORAGE
-        value: "whitenoise.storage.CompressedStaticFilesStorage"
-    pythonPath: /opt/render/project/src
-    rootDirectory: /opt/render/project/src
-    buildImage:
-      dockerfile: Dockerfile
-      context: .
-    autoDeploy: true
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        generateValue: true
