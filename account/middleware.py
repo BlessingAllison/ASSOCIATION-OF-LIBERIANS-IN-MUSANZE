@@ -18,8 +18,8 @@ class AccountCheckMiddleWare(MiddlewareMixin):
             '/media/'
         ]
         
-        # Skip middleware for public paths
-        if any(request.path.startswith(path) for path in public_paths):
+        # Skip middleware for public paths and root URL
+        if any(request.path.startswith(path) for path in public_paths) or request.path == '/':
             return None
             
         if user.is_authenticated:
@@ -34,7 +34,7 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                     if modulename == 'administrator.views':
                         messages.error(
                             request, "You do not have access to this resource")
-                        return redirect('voting:voterDashboard')
+                        return redirect(reverse('voting:voterDashboard'))
                 else:  # None of the aforementioned ? Please take the user to login page
                     return redirect('account:account_login')
             except NoReverseMatch as e:
@@ -49,6 +49,5 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 return None
                 
             # If we get here, the user is not authenticated and not on a public path
-            return redirect('account:account_login')
-            
-        return None
+            # Redirect to login with next parameter
+            return redirect(f"{reverse('account:account_login')}?next={request.path}")
