@@ -28,6 +28,7 @@ def generate_ballot(display_controls=False):
         name = position.name
         position_name = slugify(name)
         candidates = Candidate.objects.filter(position=position)
+        instruction = "Select a candidate"
         for candidate in candidates:
             if position.max_vote > 1:
                 instruction = "You may select up to " + \
@@ -70,6 +71,7 @@ def generate_ballot(display_controls=False):
         <ul>
         {candidates_data}
         </ul>
+        </div>
         </div>
         </div>
         </div>
