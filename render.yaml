@@ -8,7 +8,6 @@ services:
       mkdir -p bower_components
       mkdir -p staticfiles
       bower install --allow-root --config.interactive=false --config.directory=bower_components
-      python manage.py collectstatic --noinput --clear --verbosity 3 --ignore="*.map"
       python manage.py collectstatic --noinput --clear --verbosity 3
       python manage.py migrate
     startCommand: gunicorn e_voting.wsgi:application --bind 0.0.0.0:$PORT
@@ -41,6 +40,8 @@ services:
         value: "/opt/render/project/src/staticfiles/"
       - key: STATICFILES_DIRS
         value: "/opt/render/project/src/static,/opt/render/project/src/static/dist,/opt/render/project/src/static/plugins,/opt/render/project/src/static/toastr,/opt/render/project/src/static/bower_components,/opt/render/project/src/static/css,/opt/render/project/src/static/js,/opt/render/project/src/static/img,/opt/render/project/src/account/static,/opt/render/project/src/voting/static,/opt/render/project/src/administrator/static"
+      - key: STATICFILES_STORAGE
+        value: "whitenoise.storage.CompressedManifestStaticFilesStorage"
     pythonPath: /opt/render/project/src
     rootDirectory: /opt/render/project/src
     buildImage:
