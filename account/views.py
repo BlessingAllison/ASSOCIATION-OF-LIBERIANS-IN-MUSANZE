@@ -13,7 +13,7 @@ def account_login(request):
         if request.user.user_type == '1':
             return redirect(reverse("adminDashboard"))
         else:
-            return redirect(reverse("voterDashboard"))
+            return redirect(reverse("voting:voterDashboard"))
 
     context = {}
     if request.method == 'POST':
@@ -24,7 +24,7 @@ def account_login(request):
             if user.user_type == '1':
                 return redirect(reverse("adminDashboard"))
             else:
-                return redirect(reverse("voterDashboard"))
+                return redirect(reverse("voting:voterDashboard"))
         else:
             messages.error(request, "Invalid details")
             return redirect("/")
