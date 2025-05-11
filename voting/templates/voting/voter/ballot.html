@@ -12,7 +12,7 @@ aria-hidden="true">&times;</button>
 </div>
 
 
-<form method="POST" id="ballotForm" action="{% url 'submit_ballot' %}">
+<form method="POST" id="ballotForm" action="{% url 'voting:submit_ballot' %}">
   {% csrf_token %}
   {{ ballot|safe }}
   <div class="text-center">
