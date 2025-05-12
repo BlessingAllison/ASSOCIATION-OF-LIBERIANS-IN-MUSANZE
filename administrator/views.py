@@ -430,12 +430,13 @@ def updateCandidate(request):
     except:
         messages.error(request, "Access To This Resource Denied")
 
-    return redirect(reverse('viewCandidates'))
+    return redirect(reverse('administrator:viewCandidates'))
 
 
 def deleteCandidate(request):
     if request.method != 'POST':
         messages.error(request, "Access Denied")
+        return redirect(reverse('administrator:viewCandidates'))
     try:
         pos = Candidate.objects.get(id=request.POST.get('id'))
         pos.delete()
@@ -443,7 +444,7 @@ def deleteCandidate(request):
     except:
         messages.error(request, "Access To This Resource Denied")
 
-    return redirect(reverse('viewCandidates'))
+    return redirect(reverse('administrator:viewCandidates'))
 
 
 def view_candidate_by_id(request):
