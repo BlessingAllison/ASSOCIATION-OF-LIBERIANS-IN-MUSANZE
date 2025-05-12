@@ -109,18 +109,32 @@
   });
 
   function getRow(id) {
+      if (!id) {
+          console.error('No ID provided to getRow');
+          return;
+      }
+      
       $.ajax({
           type: 'GET',
-          url: '{% url "viewCandidate" %}',
+          url: '{% url "administrator:viewCandidate" %}',
           data: {
               id: id
           },
           dataType: 'json',
           success: function(response) {
-            $('.id').val(id),
-              $('.display_form').html(response.form);
-              $('.fullname').html(response.fullname);
+              if (response.code === 200) {
+                  $('.id').val(id);
+                  $('.display_form').html(response.form || '');
+                  $('.fullname').html(response.fullname || '');
+              } else {
+                  console.error('Error fetching candidate: Not found');
+                  toastr.error('Candidate not found');
+              }
           },
+          error: function(xhr, status, error) {
+              console.error('Error fetching candidate:', error);
+              toastr.error('Error loading candidate data');
+          }
       });
   }
 </script>
