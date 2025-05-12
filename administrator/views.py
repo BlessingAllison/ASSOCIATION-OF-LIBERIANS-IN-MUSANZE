@@ -532,14 +532,36 @@ def viewVotes(request):
 def resetVote(request):
     if request.method == 'POST':
         try:
+            # Delete all votes
             Votes.objects.all().delete()
+            # Reset all voters' voted status
             Voter.objects.all().update(voted=False, verified=False, otp=None)
+            
             messages.success(request, "All votes have been reset successfully")
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'All votes have been reset successfully'
+                })
+            return redirect('administrator:viewVotes')
+            
         except Exception as e:
-            messages.error(request, f"An error occurred while resetting votes: {str(e)}")
+            error_msg = f"An error occurred while resetting votes: {str(e)}"
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_msg
+                }, status=500)
+            messages.error(request, error_msg)
+            return redirect('administrator:viewVotes')
     else:
+        if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid request method'
+            }, status=405)
         messages.error(request, "Invalid request method")
-    return redirect(reverse('administrator:viewVotes'))
+        return redirect('administrator:viewVotes')
 
 
 def result(request):

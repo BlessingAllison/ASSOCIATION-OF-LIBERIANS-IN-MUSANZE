@@ -30,7 +30,7 @@ urlpatterns = [
 
     # * Votes
     path('votes/view/', views.viewVotes, name="viewVotes"),
-    path('votes/reset/', views.resetVote, name='resetVote'),
+    path('votes/reset/', views.resetVote, name='resetVote'),  
     path('votes/print/', views.PrintView.as_view(), name='printResult'),
     path('votes/result/', views.result, name='result'),
     path('votes/result/position/<int:position_id>/', views.compute_candidate_vote, name='compute_candidate_vote'),
