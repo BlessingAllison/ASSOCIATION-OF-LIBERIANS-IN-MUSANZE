@@ -38,11 +38,11 @@ def generate_ballot(display_controls=False):
                     str(position.max_vote) + " candidates"
                 input_box = '<input type="checkbox" value="'+str(candidate.id)+'" class="flat-red ' + \
                     position_name+'" name="' + \
-                    position_name+"[]" + '">'
+                    position_name+"[]" + '" data-icheck="true">'
             else:
                 instruction = "Select only one candidate"
-                input_box = '<input value="'+str(candidate.id)+'" type="radio" class="flat-red ' + \
-                    position_name+'" name="'+position_name+'">'
+                input_box = '<input type="radio" value="'+str(candidate.id)+'" class="flat-red ' + \
+                    position_name+'" name="'+position_name+'" data-icheck="true">'
             
             # Handle candidate photo URL
             if candidate.photo:

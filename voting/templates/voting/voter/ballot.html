@@ -31,32 +31,37 @@ aria-hidden="true">&times;</button>
 <script>
   // Function to initialize iCheck
   function initICheck() {
-      $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').not('[data-icheck]').each(function() {
+      $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').each(function() {
           var $input = $(this);
-          $input.attr('data-icheck', 'true');
-          $input.iCheck({
-              checkboxClass: 'icheckbox_flat-blue',
-              radioClass: 'iradio_flat-blue',
-              increaseArea: '20%'
-          });
+          if (!$input.hasClass('iCheck-helper')) {
+              $input.iCheck({
+                  checkboxClass: 'icheckbox_flat-blue',
+                  radioClass: 'iradio_flat-blue',
+                  increaseArea: '20%'
+              });
+          }
       });
   }
 
   $(document).ready(function() {
-      // Initialize iCheck on page load
-      initICheck();
-
-      // Re-initialize iCheck after any dynamic content is loaded
-      $(document).ajaxComplete(function() {
+      // Initialize iCheck after a small delay to ensure DOM is fully loaded
+      setTimeout(function() {
           initICheck();
+      }, 100);
+
+      // Re-initialize iCheck when content is loaded dynamically
+      $(document).ajaxComplete(function() {
+          setTimeout(initICheck, 100);
       });
 
+      // Handle reset button
       $(document).on('click', '.reset', function(e) {
           e.preventDefault();
           var desc = $(this).data('desc');
           $('.' + desc).iCheck('uncheck');
       });
 
+      // Handle platform button
       $(document).on('click', '.platform', function(e) {
           e.preventDefault();
           $('#bio').modal('show');
@@ -66,6 +71,7 @@ aria-hidden="true">&times;</button>
           $('#plat_view').html(platform);
       });
 
+      // Handle preview button
       $('#preview').click(function(e) {
           e.preventDefault();
           var form = $('#ballotForm').serialize();
@@ -78,6 +84,10 @@ aria-hidden="true">&times;</button>
                   url: '{% url "voting:preview_vote" %}',
                   data: form,
                   dataType: 'json',
+                  beforeSend: function() {
+                      // Show loading state
+                      $('#preview').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                  },
                   success: function(response) {
                       if (response.error) {
                           var errmsg = '';
@@ -90,15 +100,17 @@ aria-hidden="true">&times;</button>
                           $('#preview_modal').modal('show');
                           $('#preview_body').html(response.list);
                           // Re-initialize iCheck after modal content is loaded
-                          initICheck();
+                          setTimeout(initICheck, 100);
                       }
                   },
                   error: function(xhr, status, error) {
-                      toastr.error('An error occurred: ' + error, "Preview Error");
+                      console.error('Error:', error);
+                      console.error('Response:', xhr.responseText);
+                      toastr.error('An error occurred while processing your request', "Preview Error");
                   },
                   complete: function() {
-                      // Re-initialize iCheck after AJAX completes
-                      initICheck();
+                      // Re-enable preview button
+                      $('#preview').prop('disabled', false).html('<i class="fa fa-file-text"></i> Preview');
                   }
               });
           }
