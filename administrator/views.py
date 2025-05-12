@@ -249,72 +249,92 @@ def view_position_by_id(request):
     return JsonResponse(context)
 
 
-def updateVoter(request):
-    if request.method != 'POST':
-        messages.error(request, "Access Denied")
-        return redirect(reverse('adminViewVoters'))
+def updateVoter(request, voter_id=None):
+    if request.method == 'GET' and voter_id:
+        try:
+            # Handle GET request for viewing voter details
+            voter = Voter.objects.get(id=voter_id)
+            user = voter.admin
+            context = {
+                'voter': voter,
+                'form': CustomUserForm(instance=user)
+            }
+            return render(request, 'admin/update_voter.html', context)
+        except Voter.DoesNotExist:
+            messages.error(request, "Voter not found")
+            return redirect('administrator:adminViewVoters')
     
-    try:
-        # Get the voter ID from POST data
-        voter_id = request.POST.get('id')
-        if not voter_id:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Voter ID is required'
-            }, status=400)
-
-        # Get the voter instance
-        instance = Voter.objects.get(id=voter_id)
-        
-        # Create forms with the request data
-        user = CustomUserForm(request.POST, instance=instance.admin)
-        voter = VoterForm(request.POST, request.FILES, instance=instance)
-        
-        # Debug: Log form data
-        print("Form data:", request.POST)
-        print("Files:", request.FILES)
-        
-        if user.is_valid() and voter.is_valid():
-            user.save()
-            voter.save()
-            messages.success(request, "Voter's bio updated")
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Voter updated successfully'
-            })
-        else:
-            # Debug: Log form errors
-            print("User form errors:", user.errors)
-            print("Voter form errors:", voter.errors)
+    elif request.method == 'POST':
+        try:
+            if not voter_id:
+                voter_id = request.POST.get('id')
+                if not voter_id:
+                    if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                        return JsonResponse({
+                            'status': 'error',
+                            'message': 'Voter ID is required'
+                        }, status=400)
+                    messages.error(request, "Voter ID is required")
+                    return redirect('administrator:adminViewVoters')
             
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            # Get the voter instance
+            instance = Voter.objects.get(id=voter_id)
+            
+            # Create forms with the request data
+            user_form = CustomUserForm(request.POST, instance=instance.admin)
+            voter_form = VoterForm(request.POST, request.FILES, instance=instance)
+            
+            if user_form.is_valid() and voter_form.is_valid():
+                user = user_form.save()
+                voter = voter_form.save(commit=False)
+                voter.admin = user
+                voter.save()
+                
+                messages.success(request, "Voter updated successfully")
+                if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Voter updated successfully'
+                    })
+                return redirect('administrator:adminViewVoters')
+            else:
+                error_messages = []
+                if user_form.errors:
+                    error_messages.extend(user_form.errors.values())
+                if voter_form.errors:
+                    error_messages.extend(voter_form.errors.values())
+                
+                error_message = " ".join([str(msg) for sublist in error_messages for msg in sublist])
+                if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': error_message
+                    }, status=400)
+                
+                messages.error(request, error_message)
+                return redirect('administrator:adminViewVoters')
+                
+        except Voter.DoesNotExist:
+            error_msg = "Voter not found"
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'Form validation failed',
-                    'errors': {
-                        'user_form': user.errors,
-                        'voter_form': voter.errors
-                    }
-                }, status=400)
-            messages.error(request, "Form validation failed")
-            return redirect(reverse('adminViewVoters'))
-    except Voter.DoesNotExist:
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Voter not found'
-            }, status=404)
-        messages.error(request, "Voter not found")
-        return redirect(reverse('adminViewVoters'))
-    except Exception as e:
-        print("Error:", str(e))
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            }, status=400)
-        messages.error(request, "Access To This Resource Denied")
-        return redirect(reverse('adminViewVoters'))
+                    'message': error_msg
+                }, status=404)
+            messages.error(request, error_msg)
+            return redirect('administrator:adminViewVoters')
+        except Exception as e:
+            error_msg = f"An error occurred: {str(e)}"
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_msg
+                }, status=500)
+            messages.error(request, error_msg)
+            return redirect('administrator:adminViewVoters')
+    else:
+        messages.error(request, "Invalid request method")
+        return redirect('administrator:adminViewVoters')
 
 
 def deleteVoter(request):

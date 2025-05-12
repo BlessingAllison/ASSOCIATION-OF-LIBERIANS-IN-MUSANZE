@@ -7,6 +7,7 @@ urlpatterns = [
     path('voters/', views.voters, name="adminViewVoters"),
     path('voters/view/', views.voters, name='viewVoters'),
     path('voters/update/<int:voter_id>/', views.updateVoter, name='updateVoter'),
+    path('voters/update/', views.updateVoter, name='updateVoterPost'),  # For POST requests without ID in URL
     path('voters/delete/', views.deleteVoter, name='deleteVoter'),
 
     # * Position

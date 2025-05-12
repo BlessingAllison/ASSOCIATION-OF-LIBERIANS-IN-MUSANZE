@@ -140,7 +140,7 @@
         <h4 class="modal-title"><b>Edit Voter</b></h4>
       </div>
       <div class="modal-body">
-        <form method="POST" enctype="multipart/form-data" action="{% url 'updateVoter' %}" id="editVoterForm">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'updateVoterPost' %}" id="editVoterForm">
           {% csrf_token %}
           <input type="hidden" name="id" id="id">
           
@@ -543,7 +543,7 @@ $(document).ready(function() {
         console.log('Sending AJAX request...');
         
         $.ajax({
-            url: '{% url "updateVoter" %}',
+            url: '{% url "updateVoterPost" %}',
             type: 'POST',
             data: formData,
             processData: false,
