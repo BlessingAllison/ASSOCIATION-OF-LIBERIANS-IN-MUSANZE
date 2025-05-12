@@ -103,106 +103,91 @@
 
       <!-- New Block -->
       {% block custom_js %}
-      <script src="{% static 'bower_components/chart.js/Chart.js' %}"></script>
-<!-- ChartJS Horizontal Bar -->
-<script src="{% static 'bower_components/chart.js/Chart.HorizontalBar.js' %}"></script>
+      <!-- Load Chart.js only once -->
+      <script src="{% static 'bower_components/chart.js/Chart.min.js' %}"></script>
       
-{% for position_name, value in chart_data.items %}
-<script>
-  $(function() {
-    console.log('Initializing chart for position:', '{{ position_name }}');
-    console.log('Position ID:', '{{ value.pos_id }}');
-    console.log('Candidates:', JSON.parse('{{ value.candidates|safe|escapejs }}'));
-    console.log('Votes:', JSON.parse('{{ value.votes|safe|escapejs }}'));
-    
-    var chartId = 'position-{{ value.pos_id }}';
-    var canvas = document.getElementById(chartId);
-    
-    if (!canvas) {
-      console.error('Canvas element not found:', chartId);
-      return;
-    }
-    
-    var barChartCanvas = canvas.getContext('2d');
-    
-    try {
-      var candidatesData = JSON.parse('{{ value.candidates|safe|escapejs }}');
-      var votesData = JSON.parse('{{ value.votes|safe|escapejs }}');
+      <!-- Pass chart data to JavaScript -->
+      {{ chart_data|json_script:"chartData" }}
       
-      // Ensure votes are numbers
-      votesData = votesData.map(function(vote) {
-        return parseInt(vote, 10);
-      });
-      
-      console.log('Processed data - Candidates:', candidatesData);
-      console.log('Processed data - Votes:', votesData);
-      
-      var barChartData = {
-        labels: candidatesData,
-        datasets: [{
-          label: 'Votes',
-          backgroundColor: 'rgba(60,141,188,0.9)',
-          borderColor: 'rgba(60,141,188,0.8)',
-          borderWidth: 2,
-          data: votesData
-        }]
-      };
-
-      var barChartOptions = {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: true,
-        scales: {
-          x: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0,0,0,.05)',
-              lineWidth: 1
-            },
-            ticks: {
-              stepSize: 1,
-              precision: 0
-            }
-          },
-          y: {
-            grid: {
-              display: false
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return context.parsed.x + ' votes';
+      <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Get chart data from the JSON script tag
+        var chartData = JSON.parse(document.getElementById('chartData').textContent);
+        
+        function initializeCharts() {
+          Object.entries(chartData).forEach(function([positionName, position]) {
+            try {
+              var chartId = 'position-' + position.pos_id;
+              var canvas = document.getElementById(chartId);
+              
+              if (!canvas) {
+                console.error('Canvas not found:', chartId);
+                return;
               }
+              
+              var ctx = canvas.getContext('2d');
+              
+              // Debug log
+              console.log('Initializing chart for position:', positionName);
+              console.log('Candidates:', position.candidates);
+              console.log('Votes:', position.votes);
+              
+              // Ensure votes are numbers
+              var votesData = position.votes.map(function(vote) {
+                return parseInt(vote, 10);
+              });
+              
+              // Create chart
+              new Chart(ctx, {
+                type: 'bar',
+                data: {
+                  labels: position.candidates,
+                  datasets: [{
+                    label: 'Votes',
+                    backgroundColor: 'rgba(60,141,188,0.9)',
+                    borderColor: 'rgba(60,141,188,0.8)',
+                    borderWidth: 2,
+                    data: votesData
+                  }]
+                },
+                options: {
+                  indexAxis: 'y',
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  scales: {
+                    x: { 
+                      beginAtZero: true, 
+                      ticks: { 
+                        stepSize: 1, 
+                        precision: 0 
+                      } 
+                    },
+                    y: { 
+                      grid: { 
+                        display: false 
+                      } 
+                    }
+                  },
+                  plugins: { 
+                    legend: { 
+                      display: false 
+                    } 
+                  }
+                }
+              });
+              
+            } catch (error) {
+              console.error('Chart error:', error);
             }
-          }
-        },
-        elements: {
-          bar: {
-            borderWidth: 2,
-          }
-        },
-        barPercentage: 0.9,
-        categoryPercentage: 0.8
-      };
-
-      new Chart(barChartCanvas, {
-        type: 'bar',
-        data: barChartData,
-        options: barChartOptions
+          });
+        }
+        
+        // Initialize charts when the page is fully loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          initializeCharts();
+        } else {
+          window.addEventListener('load', initializeCharts);
+        }
       });
-      
-      console.log('Chart initialized successfully for position:', '{{ position_name }}');
-    } catch (error) {
-      console.error('Error initializing chart:', error);
-    }
-  });
-</script>
-{% endfor %}
-
-{% endblock custom_js %}
+      </script>
+      {% endblock %}
