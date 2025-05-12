@@ -121,14 +121,25 @@
               var canvas = document.getElementById(chartId);
               
               if (!canvas) {
-                console.error('Canvas not found:', chartId);
+                console.error('Canvas not found for position:', positionName, 'ID:', chartId);
                 return;
               }
+              
+              // Make canvas more visible for debugging
+              canvas.style.border = '1px solid red';
+              canvas.style.backgroundColor = '#f8f9fa';
+              canvas.style.padding = '10px';
+              canvas.style.margin = '10px 0';
+              
+              // Set explicit dimensions if not set
+              if (!canvas.width) canvas.width = canvas.offsetWidth || 400;
+              if (!canvas.height) canvas.height = 200;
               
               var ctx = canvas.getContext('2d');
               
               // Debug log
               console.log('Initializing chart for position:', positionName);
+              console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
               console.log('Candidates:', position.candidates);
               console.log('Votes:', position.votes);
               
@@ -137,47 +148,82 @@
                 return parseInt(vote, 10);
               });
               
-              // Create chart
+              // Create chart with more visible styles
               new Chart(ctx, {
                 type: 'bar',
                 data: {
                   labels: position.candidates,
                   datasets: [{
                     label: 'Votes',
-                    backgroundColor: 'rgba(60,141,188,0.9)',
-                    borderColor: 'rgba(60,141,188,0.8)',
+                    backgroundColor: 'rgba(60, 141, 188, 0.8)',
+                    borderColor: 'rgba(60, 141, 188, 1)',
                     borderWidth: 2,
+                    hoverBackgroundColor: 'rgba(60, 141, 188, 1)',
+                    hoverBorderColor: 'rgba(60, 141, 188, 1)',
                     data: votesData
                   }]
                 },
                 options: {
                   indexAxis: 'y',
                   responsive: true,
-                  maintainAspectRatio: true,
+                  maintainAspectRatio: false,
+                  layout: {
+                    padding: 20
+                  },
                   scales: {
                     x: { 
-                      beginAtZero: true, 
+                      beginAtZero: true,
+                      grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      },
                       ticks: { 
-                        stepSize: 1, 
-                        precision: 0 
+                        stepSize: 1,
+                        precision: 0,
+                        font: {
+                          size: 12
+                        }
                       } 
                     },
                     y: { 
                       grid: { 
                         display: false 
-                      } 
+                      },
+                      ticks: {
+                        font: {
+                          size: 12
+                        }
+                      }
                     }
                   },
                   plugins: { 
                     legend: { 
-                      display: false 
-                    } 
+                      display: true,
+                      position: 'top',
+                      labels: {
+                        font: {
+                          size: 12
+                        }
+                      }
+                    },
+                    title: {
+                      display: true,
+                      text: positionName,
+                      font: {
+                        size: 16,
+                        weight: 'bold'
+                      },
+                      padding: {
+                        top: 10,
+                        bottom: 20
+                      }
+                    }
                   }
                 }
               });
               
             } catch (error) {
-              console.error('Chart error:', error);
+              console.error('Chart error for', positionName, ':', error);
             }
           });
         }
