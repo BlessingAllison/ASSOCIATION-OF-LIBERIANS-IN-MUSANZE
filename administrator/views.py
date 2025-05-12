@@ -510,10 +510,16 @@ def viewVotes(request):
 
 
 def resetVote(request):
-    Votes.objects.all().delete()
-    Voter.objects.all().update(voted=False, verified=False, otp=None)
-    messages.success(request, "All votes has been reset")
-    return redirect(reverse('viewVotes'))
+    if request.method == 'POST':
+        try:
+            Votes.objects.all().delete()
+            Voter.objects.all().update(voted=False, verified=False, otp=None)
+            messages.success(request, "All votes have been reset successfully")
+        except Exception as e:
+            messages.error(request, f"An error occurred while resetting votes: {str(e)}")
+    else:
+        messages.error(request, "Invalid request method")
+    return redirect(reverse('administrator:viewVotes'))
 
 
 def result(request):
