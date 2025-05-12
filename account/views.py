@@ -16,7 +16,7 @@ def account_login(request):
     # If user is already logged in, redirect to appropriate dashboard
     if request.user.is_authenticated:
         if request.user.user_type == '1':
-            return redirect('adminDashboard')
+            return redirect('administrator:adminDashboard')
         else:
             return redirect('voting:voterDashboard')
 
@@ -35,14 +35,14 @@ def account_login(request):
                 if next_url and next_url != '/account/':
                     return JsonResponse({'redirect': next_url})
                 if user.user_type == '1':
-                    return JsonResponse({'redirect': reverse('adminDashboard')})
+                    return JsonResponse({'redirect': reverse('administrator:adminDashboard')})
                 else:
                     return JsonResponse({'redirect': reverse('voting:voterDashboard')})
             else:
                 if next_url and next_url != '/account/':
                     return redirect(next_url)
                 if user.user_type == '1':
-                    return redirect('adminDashboard')
+                    return redirect('administrator:adminDashboard')
                 else:
                     return redirect('voting:voterDashboard')
         else:

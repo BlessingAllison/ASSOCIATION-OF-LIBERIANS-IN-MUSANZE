@@ -19,15 +19,20 @@ from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include(('account.urls', 'account'), namespace='account')),
     path('', include(('voting.urls', 'voting'), namespace='voting')),
-    # Redirect root URL to the login page without any query parameters
-    path('', lambda request: redirect('account:login') if not request.user.is_authenticated else 
-        redirect('adminDashboard' if request.user.user_type == '1' else 'voting:voterDashboard'), 
-        name='home'),
+    path('administrator/', include(('administrator.urls', 'administrator'), namespace='administrator')),
+    
+    # Redirect root URL based on authentication status
+    path('', login_required(
+        lambda request: redirect('administrator:adminDashboard') if request.user.user_type == '1' 
+        else redirect('voting:voterDashboard'),
+        login_url='account:login'
+    ), name='home'),
 ]
 
 # Serve static and media files in development
