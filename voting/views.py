@@ -16,7 +16,7 @@ def index(request):
         return redirect('account:login')
     
     if request.user.user_type == '1':
-        return redirect(reverse("adminDashboard"))
+        return redirect(reverse("administrator:adminDashboard"))
     else:
         return redirect(reverse("voting:voterDashboard"))
 
