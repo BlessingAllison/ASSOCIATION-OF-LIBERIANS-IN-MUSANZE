@@ -65,9 +65,26 @@ def generate_ballot(display_controls=False):
                 # Fallback to placeholder if no photo
                 image_url = "/static/images/userplaceholder.png"
                 
-            candidates_data = candidates_data + '<li>' + input_box + '<button type="button" class="btn btn-primary btn-sm btn-flat clist platform" data-fullname="'+candidate.fullname+'" data-bio="'+candidate.bio+'"><i class="fa fa-search"></i> Platform</button><img src="' + \
-                image_url+'" height="100px" width="100px" class="clist"><span class="cname clist">' + \
-                candidate.fullname+'</span></li>'
+            candidates_data = candidates_data + (
+                f'<li style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">'
+                f'<div style="display: flex; align-items: center; gap: 10px;">'
+                f'<div style="flex-shrink: 0;">'
+                f'<label style="display: block; position: relative; padding-left: 30px; cursor: pointer;">'
+                f'{input_box}'
+                f'<span class="checkmark" style="position: absolute; top: 0; left: 0; height: 20px; width: 20px; '
+                f'background-color: #eee; border: 1px solid #ccc; border-radius: 50%;"></span>'
+                f'</label>'
+                f'</div>'
+                f'<img src="{image_url}" height="60px" width="60px" style="border-radius: 50%; object-fit: cover;">'
+                f'<div style="flex-grow: 1;">'
+                f'<span class="cname" style="font-weight: bold; font-size: 16px;">{candidate.fullname}</span>'
+                f'</div>'
+                f'<button type="button" class="btn btn-primary btn-sm btn-flat platform" '
+                f'data-fullname="{candidate.fullname}" data-bio="{candidate.bio}">'
+                f'<i class="fa fa-search"></i> Platform</button>'
+                f'</div>'
+                f'</li>'
+            )
         up = ''
         if position.priority == 1:
             up = 'disabled'
