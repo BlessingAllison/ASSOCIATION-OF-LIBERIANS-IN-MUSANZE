@@ -1,11 +1,15 @@
 from django.utils.deprecation import MiddlewareMixin
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch, resolve
 from django.shortcuts import redirect
 from django.contrib import messages
 
 
 class AccountCheckMiddleWare(MiddlewareMixin):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        # Skip middleware for static and media files
+        if request.path.startswith('/static/') or request.path.startswith('/media/'):
+            return None
+            
         modulename = view_func.__module__
         user = request.user  # Who is the current user ?
         
@@ -15,24 +19,28 @@ class AccountCheckMiddleWare(MiddlewareMixin):
             '/account/register',
             '/admin',
             '/static',
-            '/media'
+            '/media',
+            '/account/logout'
         ]
         
         # Normalize the path by removing trailing slash for comparison
         normalized_path = request.path.rstrip('/')
         
+        # Check if the current path is a public path
+        is_public_path = any(normalized_path.startswith(path.rstrip('/')) for path in public_paths)
+        
         # Skip middleware for public paths and root URL
-        if any(normalized_path.startswith(path) for path in public_paths) or normalized_path == '':
+        if is_public_path or normalized_path == '':
             return None
             
+        # Handle authenticated users
         if user.is_authenticated:
             try:
                 if user.user_type == '1':  # Admin
-                    if modulename == 'voting.views':
-                        if request.path != reverse('voting:fetch_ballot'):
-                            messages.error(
-                                request, "You do not have access to this resource")
-                            return redirect('admin:index')
+                    if modulename == 'voting.views' and request.path != reverse('voting:fetch_ballot'):
+                        messages.error(
+                            request, "You do not have access to this resource")
+                        return redirect('administrator:adminDashboard')
                 elif user.user_type == '2':  # Voter
                     if modulename == 'administrator.views':
                         messages.error(
@@ -47,13 +55,9 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 logger.error(f"URL reversal error in middleware: {str(e)}")
                 return None
         else:
-            # If the path is login or has anything to do with authentication, pass
-            if normalized_path.startswith('/account/') or modulename == 'django.contrib.auth.views':
-                return None
-                
             # If we get here, the user is not authenticated and not on a public path
             # Redirect to login with the 'next' parameter
             login_url = reverse('account:login')
-            if login_url != normalized_path and f"{login_url}/" != normalized_path:
+            if normalized_path != login_url.rstrip('/'):
                 return redirect(f"{login_url}?next={request.path}")
             return None
