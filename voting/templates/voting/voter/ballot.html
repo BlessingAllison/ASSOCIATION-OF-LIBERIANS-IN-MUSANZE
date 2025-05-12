@@ -32,58 +32,41 @@
 
 {% block custom_js %}
 <script>
-  // Function to initialize iCheck
-  function initICheck() {
-    $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').each(function() {
-      var $input = $(this);
-      // Only initialize if not already initialized
-      if (!$input.hasClass('iCheck-helper')) {
-        $input.iCheck({
-          checkboxClass: 'icheckbox_flat-blue',
-          radioClass: 'iradio_flat-blue',
-          increaseArea: '25%', // Makes the clickable area larger
-          inheritClass: true,
-          insert: '<div class="icheckbox_square-blue" aria-checked="false" aria-disabled="false">'
+  $(document).ready(function() {
+    // Function to update the visual state of radio/checkbox
+    function updateSelectionState($input) {
+      var $checkmark = $input.siblings('.checkmark');
+      if ($input.is(':checked')) {
+        $checkmark.css({
+          'background-color': '#3c8dbc',
+          'border-color': '#3c8dbc',
+          'color': '#fff'
+        });
+      } else {
+        $checkmark.css({
+          'background-color': '#fff',
+          'border-color': '#3c8dbc',
+          'color': 'transparent'
         });
       }
+    }
+
+
+    // Handle radio/checkbox change to update UI
+    $(document).on('change', 'input[type="radio"], input[type="checkbox"]', function() {
+      updateSelectionState($(this));
     });
-  }
 
-
-  $(document).ready(function() {
-    // Initialize iCheck after a small delay to ensure DOM is ready
-    setTimeout(initICheck, 100);
-
-    // Re-initialize iCheck when content is loaded dynamically
-    $(document).ajaxComplete(function() {
-      setTimeout(initICheck, 100);
+    // Update all radio/checkboxes on page load
+    $('input[type="radio"], input[type="checkbox"]').each(function() {
+      updateSelectionState($(this));
     });
 
     // Handle reset button
     $(document).on('click', '.reset', function(e) {
       e.preventDefault();
       var desc = $(this).data('desc');
-      $('.' + desc).iCheck('uncheck');
-      // Force update the UI
-      $('.' + desc).closest('li').find('.checkmark')
-        .css('background-color', '#fff')
-        .css('border-color', '#3c8dbc');
-    });
-
-    // Handle radio/checkbox change to update UI
-    $(document).on('ifChanged', 'input.flat-red', function() {
-      var $checkmark = $(this).siblings('.checkmark');
-      if ($(this).is(':checked')) {
-        $checkmark.css({
-          'background-color': '#3c8dbc',
-          'border-color': '#3c8dbc'
-        });
-      } else {
-        $checkmark.css({
-          'background-color': '#fff',
-          'border-color': '#3c8dbc'
-        });
-      }
+      $('.' + desc).prop('checked', false).trigger('change');
     });
 
     // Handle platform button
@@ -132,8 +115,6 @@
           } else {
             $('#preview_modal').modal('show');
             $('#preview_body').html(response.list);
-            // Re-initialize iCheck after modal content is loaded
-            setTimeout(initICheck, 100);
           }
         },
         error: function(xhr, status, error) {
@@ -201,67 +182,65 @@
   background: #fff;
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
+  padding: 15px 15px 15px 50px;
+  border: 1px solid #eee;
 }
 
 #candidate_list li:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-color: #3c8dbc;
 }
 
 /* Custom radio and checkbox styles */
-input[type="radio"].flat-red,
-input[type="checkbox"].flat-red {
+input[type="radio"],
+input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
   height: 0;
   width: 0;
+  margin: 0;
 }
 
 /* Custom radio button */
-input[type="radio"].flat-red + .checkmark {
+.checkmark {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
   height: 20px;
   width: 20px;
   background-color: #fff;
   border: 2px solid #3c8dbc;
   border-radius: 50%;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Custom checkbox */
-input[type="checkbox"].flat-red + .checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 20px;
-  width: 20px;
-  background-color: #fff;
-  border: 2px solid #3c8dbc;
-  border-radius: 3px;
-  transition: all 0.2s;
+input[type="checkbox"] + .checkmark {
+  border-radius: 4px;
 }
 
 /* Hover state */
-input[type="radio"].flat-red:hover + .checkmark,
-input[type="checkbox"].flat-red:hover + .checkmark {
+#candidate_list li:hover .checkmark {
   background-color: #f0f8ff;
 }
 
 /* Checked state */
-input[type="radio"].flat-red:checked + .checkmark,
-input[type="checkbox"].flat-red:checked + .checkmark {
+input[type="radio"]:checked + .checkmark,
+input[type="checkbox"]:checked + .checkmark {
   background-color: #3c8dbc;
   border-color: #3c8dbc;
 }
 
 /* Checkmark for radio button */
-input[type="radio"].flat-red:checked + .checkmark:after {
+input[type="radio"]:checked + .checkmark:after {
   content: '';
-  position: absolute;
-  top: 4px;
-  left: 4px;
+  display: block;
   width: 10px;
   height: 10px;
   background-color: white;
@@ -269,48 +248,63 @@ input[type="radio"].flat-red:checked + .checkmark:after {
 }
 
 /* Checkmark for checkbox */
-input[type="checkbox"].flat-red:checked + .checkmark:after {
+input[type="checkbox"]:checked + .checkmark:after {
   content: '✓';
-  position: absolute;
-  top: -2px;
-  left: 2px;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
 }
 
 /* Focus styles */
-input[type="radio"].flat-red:focus + .checkmark,
-input[type="checkbox"].flat-red:focus + .checkmark {
+input[type="radio"]:focus + .checkmark,
+input[type="checkbox"]:focus + .checkmark {
   box-shadow: 0 0 0 3px rgba(60, 141, 188, 0.3);
+  outline: none;
 }
 
-/* Platform button styles */
+/* Candidate info */
+.candidate-info {
+  flex: 1;
+  padding: 0 15px;
+}
+
+.candidate-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.candidate-position {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Platform button */
 .btn-platform {
   background-color: #17a2b8;
   color: white;
   border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-platform:hover {
   background-color: #138496;
   color: white;
+  text-decoration: none;
 }
 
-/* Candidate name styles */
-.candidate-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
-/* Position title styles */
+/* Position title */
 .position-title {
   color: #444;
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 /* Instruction text */
@@ -319,6 +313,25 @@ input[type="checkbox"].flat-red:focus + .checkmark {
   font-style: italic;
   margin-bottom: 15px;
   display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  #candidate_list li {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 15px 15px 50px;
+  }
+  
+  .candidate-actions {
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .btn-platform {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>
 {% endblock custom_js %}

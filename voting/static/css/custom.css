@@ -29,12 +29,24 @@
 
 /* Fix duplicate anchor IDs */
 #example1 {
-  /* Add your styles here */
+  display: inline-block;
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
 }
 
 /* If you need multiple elements with similar styles, use a class instead */
 .example-anchor {
-  /* Shared styles */
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.example-anchor:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }
 
 /* Additional responsive styles */
