@@ -24,7 +24,7 @@ urlpatterns = [
     path('account/', include(('account.urls', 'account'), namespace='account')),
     path('', include(('voting.urls', 'voting'), namespace='voting')),
     # Redirect root URL to the login page
-    path('', RedirectView.as_view(url=reverse_lazy('account:login'), query_string=True, permanent=False)),
+    path('', RedirectView.as_view(url=reverse_lazy('account:login'), permanent=False)),
 ]
 
 # Serve static and media files in development

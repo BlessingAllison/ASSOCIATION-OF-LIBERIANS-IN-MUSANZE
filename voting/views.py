@@ -13,8 +13,12 @@ import json
 
 def index(request):
     if not request.user.is_authenticated:
-        return redirect(reverse('account:login'))
-    return redirect('/dashboard/')
+        return redirect('account:login')
+    
+    if request.user.user_type == '1':
+        return redirect(reverse("adminDashboard"))
+    else:
+        return redirect(reverse("voting:voterDashboard"))
 
 
 def generate_ballot(display_controls=False):
