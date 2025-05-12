@@ -29,12 +29,26 @@ aria-hidden="true">&times;</button>
 
 {% block custom_js %}
 <script>
-  $(function() {
-      // Initialize iCheck for checkboxes and radio buttons
-      $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
-          checkboxClass: 'icheckbox_flat-blue',
-          radioClass: 'iradio_flat-blue',
-          increaseArea: '20%' // optional
+  // Function to initialize iCheck
+  function initICheck() {
+      $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').not('[data-icheck]').each(function() {
+          var $input = $(this);
+          $input.attr('data-icheck', 'true');
+          $input.iCheck({
+              checkboxClass: 'icheckbox_flat-blue',
+              radioClass: 'iradio_flat-blue',
+              increaseArea: '20%'
+          });
+      });
+  }
+
+  $(document).ready(function() {
+      // Initialize iCheck on page load
+      initICheck();
+
+      // Re-initialize iCheck after any dynamic content is loaded
+      $(document).ajaxComplete(function() {
+          initICheck();
       });
 
       $(document).on('click', '.reset', function(e) {
@@ -57,7 +71,7 @@ aria-hidden="true">&times;</button>
           var form = $('#ballotForm').serialize();
           console.log(form);
           if (form.search("&") < 0 || form == '') {
-              toastr.error('You must vote at least one candidate', "Preview Error");
+              toastr.error('You must vote for at least one candidate', "Preview Error");
           } else {
               $.ajax({
                   type: 'POST',
@@ -71,23 +85,26 @@ aria-hidden="true">&times;</button>
                           for (i in messages) {
                               errmsg += messages[i];
                           }
-                          toastr.error(errmsg, "Preview Error")
+                          toastr.error(errmsg, "Preview Error");
                       } else {
                           $('#preview_modal').modal('show');
                           $('#preview_body').html(response.list);
+                          // Re-initialize iCheck after modal content is loaded
+                          initICheck();
                       }
                   },
                   error: function(xhr, status, error) {
                       toastr.error('An error occurred: ' + error, "Preview Error");
+                  },
+                  complete: function() {
+                      // Re-initialize iCheck after AJAX completes
+                      initICheck();
                   }
               });
           }
-
       });
-
   });
 </script>
-
 {% endblock custom_js %}
 
 {% block modal %}
