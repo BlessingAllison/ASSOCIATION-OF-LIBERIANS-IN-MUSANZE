@@ -1,4 +1,4 @@
-from django.shortcuts import render, reverse, redirect
+from django.shortcuts import render, reverse, redirect, get_object_or_404
 from voting.models import Voter, Position, Candidate, Votes
 from account.models import CustomUser
 from account.forms import CustomUserForm
@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import json  # Not used
+import csv
 from django_renderpdf.views import PDFView
 
 
@@ -513,3 +514,37 @@ def resetVote(request):
     Voter.objects.all().update(voted=False, verified=False, otp=None)
     messages.success(request, "All votes has been reset")
     return redirect(reverse('viewVotes'))
+
+
+def result(request):
+    """
+    Display the election results
+    """
+    context = {
+        'page_title': 'Election Results',
+    }
+    return render(request, 'admin/result.html', context)
+
+
+def compute_candidate_vote(request, position_id=None):
+    """
+    Compute and return the vote count for a specific position
+    """
+    position = get_object_or_404(Position, id=position_id)
+    candidates = Candidate.objects.filter(position=position)
+    # Add your vote computation logic here
+    return JsonResponse({'status': 'success'})
+
+
+def export_voters_votes(request):
+    """
+    Export voters' votes to a file (CSV/Excel)
+    """
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="voting_results.csv"'
+    
+    # Add your export logic here
+    writer = csv.writer(response)
+    writer.writerow(['Voter ID', 'Voter Name', 'Position', 'Candidate Voted', 'Date Voted'])
+    
+    return response
