@@ -78,13 +78,13 @@
      <div class='row'>
      {% endif %}
      <div class='col-sm-6'>
-      <div class='box box-solid'>
+      <div class='box box-solid chart-container'>
         <div class='box-header with-border'>
           <h4 class='box-title'><b>{{ position.name }}</b></h4>
         </div>
         <div class='box-body'>
-          <div class='chart'>
-            <canvas id='position-{{ position.id }}' style='height:200px'></canvas>
+          <div class='chart' style="position: relative; height: 250px; width: 100%;">
+            <canvas id='position-{{ position.id }}' style="width: 100% !important; height: 100% !important;"></canvas>
           </div>
         </div>
       </div>
@@ -92,7 +92,6 @@
     {% if forloop.counter|divisibleby:2 %}
      </div>
      {% endif %}
-
      {% endfor %}
      {% if not forloop.counter|divisibleby:2 %}
      </div>
@@ -136,9 +135,14 @@
                 return;
               }
               
+              // Set explicit dimensions
+              var parent = canvas.parentElement;
+              canvas.width = parent.offsetWidth;
+              canvas.height = parent.offsetHeight;
+              
               var ctx = canvas.getContext('2d');
               
-              // Create a more visible chart
+              // Create chart with responsive settings
               var chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -147,12 +151,12 @@
                     label: 'Votes',
                     data: position.votes,
                     backgroundColor: [
-                      'rgba(54, 162, 235, 0.7)',     // Blue
-                      'rgba(255, 99, 132, 0.7)',     // Red
-                      'rgba(255, 206, 86, 0.7)',      // Yellow
-                      'rgba(75, 192, 192, 0.7)',      // Teal
-                      'rgba(153, 102, 255, 0.7)',     // Purple
-                      'rgba(255, 159, 64, 0.7)'       // Orange
+                      'rgba(54, 162, 235, 0.7)',
+                      'rgba(255, 99, 132, 0.7)',
+                      'rgba(255, 206, 86, 0.7)',
+                      'rgba(75, 192, 192, 0.7)',
+                      'rgba(153, 102, 255, 0.7)',
+                      'rgba(255, 159, 64, 0.7)'
                     ],
                     borderColor: [
                       'rgba(54, 162, 235, 1)',
@@ -170,7 +174,7 @@
                   responsive: true,
                   maintainAspectRatio: false,
                   layout: {
-                    padding: 20
+                    padding: 10
                   },
                   scales: {
                     x: { 
@@ -211,30 +215,30 @@
                       },
                       padding: {
                         top: 10,
-                        bottom: 20
+                        bottom: 10
                       }
                     }
-                  },
-                  // Add animation for better visibility
-                  animation: {
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
                   }
                 }
               });
               
-              // Debug: Log chart instance
-              console.log('Chart created for:', positionName, 'with data:', {
-                candidates: position.candidates,
-                votes: position.votes,
-                chart: chart
-              });
+              // Store chart instance for potential updates
+              canvas.chart = chart;
               
             } catch (error) {
               console.error('Error creating chart for', positionName, ':', error);
             }
           });
         }
+        
+        // Handle window resize
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function() {
+            initializeCharts();
+          }, 250);
+        });
         
         // Initialize charts when the page is fully loaded
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
