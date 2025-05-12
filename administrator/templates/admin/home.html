@@ -175,6 +175,14 @@
                 }
               });
               
+              // Debug: Log canvas dimensions
+              console.log('Chart created for:', positionName, 'Dimensions:', {
+                width: canvas.offsetWidth,
+                height: canvas.offsetHeight,
+                parentWidth: canvas.parentElement.offsetWidth,
+                parentHeight: canvas.parentElement.offsetHeight
+              });
+              
             } catch (error) {
               console.error('Error creating chart for', positionName, ':', error);
             }
