@@ -5,7 +5,7 @@
 <section class="content">
     <div class="container">
         <div class="row">
-            <div class="col-md-6 offset-md-3">
+            <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Register</h3>
@@ -20,20 +20,87 @@
                                     <ul>
                                         {% for field in form1 %}
                                             {% for error in field.errors %}
-                                                <li>{{ error }}</li>
+                                                <li>{{ field.label }}: {{ error }}</li>
                                             {% endfor %}
                                         {% endfor %}
                                         {% for field in form2 %}
                                             {% for error in field.errors %}
-                                                <li>{{ error }}</li>
+                                                <li>{{ field.label }}: {{ error }}</li>
                                             {% endfor %}
                                         {% endfor %}
                                     </ul>
                                 </div>
                             {% endif %}
                             
-                            {{ form1.as_p }}
-                            {{ form2.as_p }}
+                            <h4>Account Information</h4>
+                            <div class="form-group">
+                                <label for="{{ form1.first_name.id_for_label }}">First Name</label>
+                                {{ form1.first_name }}
+                                <div id="{{ form1.first_name.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form1.last_name.id_for_label }}">Last Name</label>
+                                {{ form1.last_name }}
+                                <div id="{{ form1.last_name.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form1.email.id_for_label }}">Email</label>
+                                {{ form1.email }}
+                                <div id="{{ form1.email.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form1.password.id_for_label }}">Password</label>
+                                {{ form1.password }}
+                                <div id="{{ form1.password.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <hr>
+                            <h4>Personal Information</h4>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.phone.id_for_label }}">Phone</label>
+                                {{ form2.phone }}
+                                <div id="{{ form2.phone.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.photo.id_for_label }}">Photo</label>
+                                {{ form2.photo }}
+                                <div id="{{ form2.photo.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.date_of_birth.id_for_label }}">Date of Birth</label>
+                                {{ form2.date_of_birth }}
+                                <div id="{{ form2.date_of_birth.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.address.id_for_label }}">Address</label>
+                                {{ form2.address }}
+                                <div id="{{ form2.address.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.gender.id_for_label }}">Gender</label>
+                                {{ form2.gender }}
+                                <div id="{{ form2.gender.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.department.id_for_label }}">Department</label>
+                                {{ form2.department }}
+                                <div id="{{ form2.department.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form2.academic_level.id_for_label }}">Academic Level</label>
+                                {{ form2.academic_level }}
+                                <div id="{{ form2.academic_level.id_for_label }}_errors" class="text-danger"></div>
+                            </div>
                             
                             <button type="submit" class="btn btn-primary btn-block">Register</button>
                         </form>
@@ -49,15 +116,21 @@
 <script>
 $(document).ready(function() {
     // Initialize date picker
-    $('#date_of_birth').datepicker({
+    $('#id_date_of_birth').datepicker({
         autoclose: true,
-        format: 'yyyy-mm-dd'
+        format: 'yyyy-mm-dd',
+        endDate: '0d',  // Prevent future dates
+        orientation: 'bottom auto'
     });
 
     // Handle form submission
     $('#registerForm').on('submit', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
+        
+        // Clear previous errors
+        $('.text-danger').html('');
+        $('.is-invalid').removeClass('is-invalid');
         
         $.ajax({
             url: '{% url "account:register" %}',
@@ -66,32 +139,32 @@ $(document).ready(function() {
             processData: false,
             contentType: false,
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
                 if (response.status === 'success') {
                     // Show success message
-                    alert('Account created successfully! You can login now.');
+                    alert('Account created successfully! You can now log in.');
                     // Redirect to login page
                     window.location.href = '{% url "account:login" %}';
                 } else {
                     // Show form errors
                     if (response.errors) {
-                        // Clear existing errors
-                        $('.text-danger').remove();
-                        $('.alert-danger').remove();
-                        
-                        // Show form validation errors
+                        // Handle user form errors
                         if (response.errors.user_form) {
                             for (var field in response.errors.user_form) {
                                 var error = response.errors.user_form[field][0];
                                 $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                                $('#id_' + field).addClass('is-invalid');
                             }
                         }
+                        // Handle voter form errors
                         if (response.errors.voter_form) {
                             for (var field in response.errors.voter_form) {
                                 var error = response.errors.voter_form[field][0];
                                 $('#' + field + '_errors').html('<span class="text-danger">' + error + '</span>');
+                                $('#id_' + field).addClass('is-invalid');
                             }
                         }
                     }
@@ -101,15 +174,15 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                console.log('Error:', error);
-                console.log('Response:', xhr.responseText);
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.message) {
                         alert('Error: ' + response.message);
                     }
                 } catch (e) {
-                    alert('An error occurred while processing your request');
+                    alert('An error occurred while processing your request. Please try again.');
                 }
             }
         });
