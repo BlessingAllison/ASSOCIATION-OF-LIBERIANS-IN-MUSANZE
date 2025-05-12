@@ -109,6 +109,17 @@
       <!-- Pass chart data to JavaScript -->
       {{ chart_data|json_script:"chartData" }}
       
+      <style>
+      /* Add these styles to make charts more visible */
+      .card-body canvas {
+        border: 2px solid #ddd;
+        background-color: #f8f9fa;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      </style>
+
       <script>
       document.addEventListener('DOMContentLoaded', function() {
         // Get chart data from the JSON script tag
@@ -125,14 +136,9 @@
                 return;
               }
               
-              // Debug: Log the data being used for the chart
-              console.log('Position:', positionName);
-              console.log('Candidates:', position.candidates);
-              console.log('Votes:', position.votes);
-              
               var ctx = canvas.getContext('2d');
               
-              // Ensure data is in the correct format
+              // Create a more visible chart
               var chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -140,27 +146,56 @@
                   datasets: [{
                     label: 'Votes',
                     data: position.votes,
-                    backgroundColor: 'rgba(60,141,188,0.9)',
-                    borderColor: 'rgba(60,141,188,0.8)',
-                    borderWidth: 2
+                    backgroundColor: [
+                      'rgba(54, 162, 235, 0.7)',     // Blue
+                      'rgba(255, 99, 132, 0.7)',     // Red
+                      'rgba(255, 206, 86, 0.7)',      // Yellow
+                      'rgba(75, 192, 192, 0.7)',      // Teal
+                      'rgba(153, 102, 255, 0.7)',     // Purple
+                      'rgba(255, 159, 64, 0.7)'       // Orange
+                    ],
+                    borderColor: [
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
                   }]
                 },
                 options: {
                   indexAxis: 'y',
                   responsive: true,
-                  maintainAspectRatio: true,
+                  maintainAspectRatio: false,
+                  layout: {
+                    padding: 20
+                  },
                   scales: {
                     x: { 
                       beginAtZero: true, 
                       ticks: { 
                         stepSize: 1, 
-                        precision: 0 
-                      } 
+                        precision: 0,
+                        font: {
+                          size: 12
+                        }
+                      },
+                      grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.05)'
+                      }
                     },
                     y: { 
                       grid: { 
                         display: false 
-                      } 
+                      },
+                      ticks: {
+                        font: {
+                          size: 12
+                        }
+                      }
                     }
                   },
                   plugins: { 
@@ -169,18 +204,30 @@
                     },
                     title: {
                       display: true,
-                      text: positionName
+                      text: positionName,
+                      font: {
+                        size: 14,
+                        weight: 'bold'
+                      },
+                      padding: {
+                        top: 10,
+                        bottom: 20
+                      }
                     }
+                  },
+                  // Add animation for better visibility
+                  animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
                   }
                 }
               });
               
-              // Debug: Log canvas dimensions
-              console.log('Chart created for:', positionName, 'Dimensions:', {
-                width: canvas.offsetWidth,
-                height: canvas.offsetHeight,
-                parentWidth: canvas.parentElement.offsetWidth,
-                parentHeight: canvas.parentElement.offsetHeight
+              // Debug: Log chart instance
+              console.log('Chart created for:', positionName, 'with data:', {
+                candidates: position.candidates,
+                votes: position.votes,
+                chart: chart
               });
               
             } catch (error) {
