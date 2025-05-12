@@ -11,7 +11,7 @@
                         <h3 class="card-title">Register</h3>
                     </div>
                     <div class="card-body">
-                        <form method="POST" enctype="multipart/form-data" id="registerForm">
+                        <form method="POST" action="{% url 'account:register' %}" enctype="multipart/form-data" id="registerForm">
                             {% csrf_token %}
                             
                             {% if form1.errors or form2.errors %}
@@ -60,7 +60,7 @@ $(document).ready(function() {
         var formData = new FormData(this);
         
         $.ajax({
-            url: '{% url "account_register" %}',
+            url: '{% url "account:register" %}',
             type: 'POST',
             data: formData,
             processData: false,
