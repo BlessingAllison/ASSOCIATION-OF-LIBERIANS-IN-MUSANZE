@@ -278,7 +278,7 @@ $(document).ready(function() {
         <h4 class="modal-title"><b>Deleting...</b></h4>
       </div>
       <div class="modal-body">
-        <form class="form-horizontal" method="POST" action="{% url 'deleteVoter' %}">
+        <form class="form-horizontal" method="POST" action="{% url 'administrator:deleteVoter' %}">
           <input type="hidden" class="id" name="id">
           {% csrf_token %}
           <div class="text-center">
@@ -612,7 +612,7 @@ $(document).ready(function() {
         
         if (confirm('Are you sure you want to delete ' + firstname + ' ' + lastname + '?')) {
             $.ajax({
-                url: '{% url "deleteVoter" %}',
+                url: '{% url "administrator:deleteVoter" %}',
                 type: 'POST',
                 data: { id: id, csrfmiddlewaretoken: '{{ csrf_token }}' },
                 success: function(response) {
