@@ -110,64 +110,97 @@
 {% for position_name, value in chart_data.items %}
 <script>
   $(function() {
-    var rowid = '{{ value.pos_id|escapejs }}';
-    var chartId = 'position-' + '{{ value.pos_id|escapejs }}';
-    var barChartCanvas = $('#' + chartId).get(0).getContext('2d');
+    console.log('Initializing chart for position:', '{{ position_name }}');
+    console.log('Position ID:', '{{ value.pos_id }}');
+    console.log('Candidates:', JSON.parse('{{ value.candidates|safe|escapejs }}'));
+    console.log('Votes:', JSON.parse('{{ value.votes|safe|escapejs }}'));
     
-    var candidatesData = JSON.parse('{{ value.candidates|safe|escapejs }}');
-    var votesData = JSON.parse('{{ value.votes|safe|escapejs }}');
+    var chartId = 'position-{{ value.pos_id }}';
+    var canvas = document.getElementById(chartId);
     
-    var barChartData = {
-      labels: candidatesData,
-      datasets: [{
-        label: 'Votes',
-        backgroundColor: 'rgba(60,141,188,0.9)',
-        borderColor: 'rgba(60,141,188,0.8)',
-        borderWidth: 2,
-        data: votesData
-      }]
-    };
+    if (!canvas) {
+      console.error('Canvas element not found:', chartId);
+      return;
+    }
+    
+    var barChartCanvas = canvas.getContext('2d');
+    
+    try {
+      var candidatesData = JSON.parse('{{ value.candidates|safe|escapejs }}');
+      var votesData = JSON.parse('{{ value.votes|safe|escapejs }}');
+      
+      // Ensure votes are numbers
+      votesData = votesData.map(function(vote) {
+        return parseInt(vote, 10);
+      });
+      
+      console.log('Processed data - Candidates:', candidatesData);
+      console.log('Processed data - Votes:', votesData);
+      
+      var barChartData = {
+        labels: candidatesData,
+        datasets: [{
+          label: 'Votes',
+          backgroundColor: 'rgba(60,141,188,0.9)',
+          borderColor: 'rgba(60,141,188,0.8)',
+          borderWidth: 2,
+          data: votesData
+        }]
+      };
 
-    var barChartOptions = {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: true,
-      scales: {
-        x: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(0,0,0,.05)',
-            lineWidth: 1
+      var barChartOptions = {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,.05)',
+              lineWidth: 1
+            },
+            ticks: {
+              stepSize: 1,
+              precision: 0
+            }
           },
-          ticks: {
-            stepSize: 1
+          y: {
+            grid: {
+              display: false
+            }
           }
         },
-        y: {
-          grid: {
+        plugins: {
+          legend: {
             display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.x + ' votes';
+              }
+            }
           }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      elements: {
-        bar: {
-          borderWidth: 2,
-        }
-      },
-      barPercentage: 0.9,
-      categoryPercentage: 0.8
-    };
+        },
+        elements: {
+          bar: {
+            borderWidth: 2,
+          }
+        },
+        barPercentage: 0.9,
+        categoryPercentage: 0.8
+      };
 
-    new Chart(barChartCanvas, {
-      type: 'bar',
-      data: barChartData,
-      options: barChartOptions
-    });
+      new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+      });
+      
+      console.log('Chart initialized successfully for position:', '{{ position_name }}');
+    } catch (error) {
+      console.error('Error initializing chart:', error);
+    }
   });
 </script>
 {% endfor %}
