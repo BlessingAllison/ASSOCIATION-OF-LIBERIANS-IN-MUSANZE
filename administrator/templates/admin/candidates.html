@@ -61,7 +61,7 @@
             <h4 class="modal-title"><b>Add New Candidate</b></h4>
           </div>
           <div class="modal-body">
-            <form class="form-horizontal" enctype="multipart/form-data" method="POST" action="{% url 'viewCandidates' %}">
+            <form class="form-horizontal" enctype="multipart/form-data" method="POST" action="{% url 'administrator:viewCandidates' %}">
               {% csrf_token %}
 
              
@@ -91,7 +91,7 @@
             <h4 class="modal-title"><b>Edit Candidate</b></h4>
           </div>
           <div class="modal-body">
-            <form class="form-horizontal" enctype="multipart/form-data" method="POST" action="{% url 'updateCandidate' %}">
+            <form class="form-horizontal" enctype="multipart/form-data" method="POST" action="{% url 'administrator:updateCandidate' %}">
               {% csrf_token %}
               <input type="hidden" class="id" name="id">
               <p class="display_form">
@@ -119,7 +119,7 @@
             <h4 class="modal-title"><b>Deleting...</b></h4>
           </div>
           <div class="modal-body">
-            <form class="form-horizontal" method="POST" action="{% url 'deleteCandidate' %}">
+            <form class="form-horizontal" method="POST" action="{% url 'administrator:deleteCandidate' %}">
               <input type="hidden" class="id" name="id">
               {% csrf_token %}
               <div class="text-center">
@@ -164,7 +164,7 @@
   function getRow(id) {
       $.ajax({
           type: 'GET',
-          url: '{% url "viewCandidate" %}',
+          url: '{% url "administrator:viewCandidate" %}',
           data: {
               id: id
           },

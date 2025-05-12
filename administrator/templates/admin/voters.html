@@ -94,7 +94,7 @@
         <h4 class="modal-title"><i class="fa fa-user"></i> Add New Voter</h4>
       </div>
       <div class="modal-body">
-        <form method="POST" enctype="multipart/form-data" action="{% url 'adminViewVoters' %}" id="voterForm">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'administrator:adminViewVoters' %}" id="voterForm">
           {% csrf_token %}
           <input type="hidden" name="action" value="add">
           {% if form1.errors or form2.errors %}
