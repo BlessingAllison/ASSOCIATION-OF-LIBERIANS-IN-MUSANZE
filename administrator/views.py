@@ -114,7 +114,8 @@ def dashboard(request):
         chart_data[position.name] = {
             'candidates': candidates_data,
             'votes': votes_data,
-            'pos_id': position.id
+            'pos_id': position.id,
+            'slug': position.name.lower().replace(' ', '-')
         }
 
     context = {

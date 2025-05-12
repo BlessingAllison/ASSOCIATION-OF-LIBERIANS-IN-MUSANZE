@@ -84,7 +84,7 @@
         </div>
         <div class='box-body'>
           <div class='chart'>
-            <canvas id='{{ position.name|slugify }}' style='height:200px'></canvas>
+            <canvas id='position-{{ position.id }}' style='height:200px'></canvas>
           </div>
         </div>
       </div>
@@ -107,12 +107,12 @@
 <!-- ChartJS Horizontal Bar -->
 <script src="{% static 'bower_components/chart.js/Chart.HorizontalBar.js' %}"></script>
       
-{% for key, value in chart_data.items  %}
+{% for position_name, value in chart_data.items %}
 <script>
   $(function() {
     var rowid = '{{ value.pos_id|escapejs }}';
-    var description = '{{ key|slugify|escapejs }}';
-    var barChartCanvas = $('#' + description).get(0).getContext('2d');
+    var chartId = 'position-' + '{{ value.pos_id|escapejs }}';
+    var barChartCanvas = $('#' + chartId).get(0).getContext('2d');
     
     var candidatesData = JSON.parse('{{ value.candidates|safe|escapejs }}');
     var votesData = JSON.parse('{{ value.votes|safe|escapejs }}');
