@@ -13,35 +13,47 @@ from django.contrib.auth.decorators import login_required
 
 
 def account_login(request):
+    # If user is already logged in, redirect to appropriate dashboard
     if request.user.is_authenticated:
         if request.user.user_type == '1':
-            return redirect(reverse("adminDashboard"))
+            return redirect('adminDashboard')
         else:
-            return redirect(reverse("voting:voterDashboard"))
+            return redirect('voting:voterDashboard')
 
     context = {}
     if request.method == 'POST':
-        user = EmailBackend.authenticate(request, username=request.POST.get(
-            'email'), password=request.POST.get('password'))
+        user = EmailBackend.authenticate(
+            request, 
+            username=request.POST.get('email'), 
+            password=request.POST.get('password')
+        )
         if user is not None:
             login(request, user)
+            next_url = request.POST.get('next', None)
+            
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                if next_url and next_url != '/account/':
+                    return JsonResponse({'redirect': next_url})
                 if user.user_type == '1':
-                    return JsonResponse({'redirect': reverse("adminDashboard")})
+                    return JsonResponse({'redirect': reverse('adminDashboard')})
                 else:
-                    return JsonResponse({'redirect': reverse("voting:voterDashboard")})
+                    return JsonResponse({'redirect': reverse('voting:voterDashboard')})
             else:
+                if next_url and next_url != '/account/':
+                    return redirect(next_url)
                 if user.user_type == '1':
-                    return redirect(reverse("adminDashboard"))
+                    return redirect('adminDashboard')
                 else:
-                    return redirect(reverse("voting:voterDashboard"))
+                    return redirect('voting:voterDashboard')
         else:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'error': 'Invalid email or password'}, status=400)
             else:
                 messages.error(request, "Invalid email or password")
-                return redirect(reverse("account:login"))
-
+                return redirect('account:login')
+    
+    # For GET requests, include the 'next' parameter in the context
+    context['next'] = request.GET.get('next', '')
     return render(request, "voting/login.html", context)
 
 

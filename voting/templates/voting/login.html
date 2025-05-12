@@ -15,7 +15,7 @@
             {% endif %}
             <form action="{% url 'account:login' %}" method="POST" id="loginForm">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
                 <div class="form-group has-feedback">
                     <input type="text" class="form-control" name="email" placeholder="Email" required>
                     <span class="fa fa-envelope form-control-feedback"></span>
@@ -26,10 +26,14 @@
                 </div>
                 <div class="row">
                     <div class="col-4">
-                        <button type="submit" class="btn btn-success btn-block btn-flat" name="login"><i class="fa fa-sign-in-alt"></i> Log In</button>
+                        <button type="submit" class="btn btn-success btn-block btn-flat" name="login">
+                            <i class="fa fa-sign-in-alt"></i> Log In
+                        </button>
                     </div>
                     <div class="col-4 ms-auto">
-                        <a class="btn btn-warning btn-block btn-flat" href="{% url 'account_register' %}"><i class="fa fa-user-plus"></i> Register</a>
+                        <a class="btn btn-warning btn-block btn-flat" href="{% url 'account:register' %}">
+                            <i class="fa fa-user-plus"></i> Register
+                        </a>
                     </div>
                 </div>
             </form>
@@ -44,33 +48,44 @@ $(document).ready(function() {
     $('#loginForm').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
+        var submitBtn = form.find('button[type="submit"]');
+        var originalBtnText = submitBtn.html();
+        
+        // Disable submit button and show loading state
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Logging in...');
         
         // Add CSRF token to the form data
         var formData = new FormData(this);
-        formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
         
-        // Submit the form using AJAX
         $.ajax({
-            url: form.attr('action'),
             type: 'POST',
+            url: form.attr('action'),
             data: formData,
             processData: false,
             contentType: false,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(response) {
-                // If login is successful, redirect to the next URL or dashboard
                 if (response.redirect) {
                     window.location.href = response.redirect;
                 } else {
+                    // Handle any other success response
                     window.location.reload();
                 }
             },
-            error: function(xhr, status, error) {
-                // Handle error response
+            error: function(xhr) {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false).html(originalBtnText);
+                
+                // Show error message
+                var errorMessage = 'An error occurred. Please try again.';
                 if (xhr.responseJSON && xhr.responseJSON.error) {
-                    alert(xhr.responseJSON.error);
-                } else {
-                    alert('An error occurred. Please try again.');
+                    errorMessage = xhr.responseJSON.error;
                 }
+                
+                // Show error message in a toast or alert
+                alert(errorMessage);
             }
         });
     });

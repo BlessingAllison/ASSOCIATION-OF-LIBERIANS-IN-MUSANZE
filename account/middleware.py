@@ -11,11 +11,11 @@ class AccountCheckMiddleWare(MiddlewareMixin):
         
         # Define paths that don't require authentication
         public_paths = [
-            '/account/login/',
-            '/account/register/',
-            '/admin/',
-            '/static/',
-            '/media/'
+            '/account/login',
+            '/account/register',
+            '/admin',
+            '/static',
+            '/media'
         ]
         
         # Skip middleware for public paths and root URL
@@ -45,9 +45,12 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 return None
         else:
             # If the path is login or has anything to do with authentication, pass
-            if request.path in ['/account/login/', '/account/register/'] or modulename == 'django.contrib.auth.views':
+            if request.path.startswith('/account/') or modulename == 'django.contrib.auth.views':
                 return None
                 
             # If we get here, the user is not authenticated and not on a public path
-            # Redirect to login with next parameter
-            return redirect(f"{reverse('account:login')}?next={request.path}")
+            # Redirect to login with the 'next' parameter
+            login_url = reverse('account:login')
+            if login_url != request.path:
+                return redirect(f"{login_url}?next={request.path}")
+            return None

@@ -18,30 +18,24 @@ from django.urls import path, include, reverse_lazy
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include(('account.urls', 'account'), namespace='account')),
     path('', include(('voting.urls', 'voting'), namespace='voting')),
-    # Redirect root URL to the login page
-    path('', RedirectView.as_view(url=reverse_lazy('account:login'), permanent=False)),
+    # Redirect root URL to the login page without any query parameters
+    path('', lambda request: redirect('account:login') if not request.user.is_authenticated else 
+        redirect('adminDashboard' if request.user.user_type == '1' else 'voting:voterDashboard'), 
+        name='home'),
 ]
 
 # Serve static and media files in development
 if settings.DEBUG:
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-    
-    # Serve static files
-    urlpatterns += staticfiles_urlpatterns()
-    
-    # Serve media files
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    
-    # Debug toolbar
-    try:
-        import debug_toolbar
-        urlpatterns = [
-            path('__debug__/', include(debug_toolbar.urls)),
-        ] + urlpatterns
-    except ImportError:
-        pass
+
+# Serve static files in production
+if not settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
