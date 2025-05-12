@@ -18,8 +18,11 @@ class AccountCheckMiddleWare(MiddlewareMixin):
             '/media'
         ]
         
+        # Normalize the path by removing trailing slash for comparison
+        normalized_path = request.path.rstrip('/')
+        
         # Skip middleware for public paths and root URL
-        if any(request.path.startswith(path) for path in public_paths) or request.path == '/':
+        if any(normalized_path.startswith(path) for path in public_paths) or normalized_path == '':
             return None
             
         if user.is_authenticated:
@@ -34,7 +37,7 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                     if modulename == 'administrator.views':
                         messages.error(
                             request, "You do not have access to this resource")
-                        return redirect(reverse('voting:voterDashboard'))
+                        return redirect('voting:voterDashboard')
                 else:  # None of the aforementioned ? Please take the user to login page
                     return redirect('account:login')
             except NoReverseMatch as e:
@@ -45,12 +48,12 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 return None
         else:
             # If the path is login or has anything to do with authentication, pass
-            if request.path.startswith('/account/') or modulename == 'django.contrib.auth.views':
+            if normalized_path.startswith('/account/') or modulename == 'django.contrib.auth.views':
                 return None
                 
             # If we get here, the user is not authenticated and not on a public path
             # Redirect to login with the 'next' parameter
             login_url = reverse('account:login')
-            if login_url != request.path:
+            if login_url != normalized_path and f"{login_url}/" != normalized_path:
                 return redirect(f"{login_url}?next={request.path}")
             return None

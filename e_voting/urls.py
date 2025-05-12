@@ -21,18 +21,23 @@ from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
+def redirect_to_dashboard(request):
+    """Helper view to handle the root URL redirection."""
+    if not request.user.is_authenticated:
+        return redirect('account:login')
+    if request.user.user_type == '1':
+        return redirect('administrator:adminDashboard')
+    return redirect('voting:voterDashboard')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include(('account.urls', 'account'), namespace='account')),
     path('', include(('voting.urls', 'voting'), namespace='voting')),
     path('administrator/', include(('administrator.urls', 'administrator'), namespace='administrator')),
     
-    # Redirect root URL based on authentication status
-    path('', login_required(
-        lambda request: redirect('administrator:adminDashboard') if request.user.user_type == '1' 
-        else redirect('voting:voterDashboard'),
-        login_url='account:login'
-    ), name='home'),
+    # Handle both with and without trailing slash for the root URL
+    path('', login_required(lambda request: redirect_to_dashboard(request)), name='home'),
+    path('/', login_required(lambda request: redirect_to_dashboard(request))),
 ]
 
 # Serve static and media files in development
