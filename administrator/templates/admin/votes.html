@@ -8,7 +8,7 @@
     <a href="#reset" data-toggle="modal" class="btn btn-danger btn-sm btn-flat"><i class="fa fa-refresh"></i> Reset</a>
   </div>
 <div class="box-body">
-  <table id="example1" class="table table-bordered table-hover table-striped">
+  <table id="votes-table" class="table table-bordered table-hover table-striped">
       <thead style="background-color: #222D32; color:white;">
           <th>Voter's Name</th>
           <th>Candidate Voted For</th>
@@ -90,6 +90,24 @@
                   }
               });
           }
+      });
+
+      // Initialize DataTable with a unique ID
+      $('#votes-table').DataTable({
+        'paging'      : true,
+        'lengthChange': false,
+        'searching'   : true,
+        'ordering'    : true,
+        'info'        : true,
+        'autoWidth'   : false,
+        'responsive'  : true,
+        'order': [[0, 'desc']]
+      });
+      
+      // Initialize iCheck for checkboxes
+      $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+        checkboxClass: 'icheckbox_minimal-blue',
+        radioClass   : 'iradio_minimal-blue'
       });
 
       // Other existing handlers

@@ -13,7 +13,7 @@
           </a>
         </div>
         <div class="box-body">
-          <table id="example1" class="table table-bordered table-hover table-striped">
+          <table id="voters-table" class="table table-bordered table-hover table-striped">
             <thead style="background-color: #222D32; color:white;">
               <th>Photo</th>
               <th>Firstname</th>
@@ -304,26 +304,28 @@ $(document).ready(function() {
 {% block extra_js %}
     <script src="{% static 'bower_components/moment/min/moment.min.js' %}"></script>
     <script src="{% static 'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
 {% endblock %}
 
 {% block custom_js %}
-<script src="{% static 'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
 <script>
-$(document).ready(function() {
-    // Initialize date pickers
-    $('#date_of_birth').datepicker({
-        autoclose: true,
-        format: 'yyyy-mm-dd'
+$(function () {
+    // Initialize DataTable with a unique ID
+    $('#voters-table').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : true,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false,
+      'responsive'  : true
     });
-
-    $('#date_of_birth').datepicker({
-        autoclose: true,
-        format: 'yyyy-mm-dd'
-    });
-
-    // Initialize modals
-    $('#edit').modal({
-        show: false
+    
+    // Initialize iCheck for checkboxes
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass   : 'iradio_minimal-blue'
     });
 
     // Handle form submission

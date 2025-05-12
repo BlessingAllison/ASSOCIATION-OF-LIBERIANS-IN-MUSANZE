@@ -1,0 +1,130 @@
+/* Fix media query syntax */
+@media (max-width: 767px) {
+  /* Styles for small devices */
+  .container {
+    padding: 0 15px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Styles for medium devices */
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  /* Styles for large devices */
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  /* Styles for extra large devices */
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Fix duplicate anchor IDs */
+#example1 {
+  /* Add your styles here */
+}
+
+/* If you need multiple elements with similar styles, use a class instead */
+.example-anchor {
+  /* Shared styles */
+}
+
+/* Additional responsive styles */
+@media (max-width: 767px) {
+  .candidate-card {
+    flex-direction: column;
+  }
+  
+  .candidate-photo {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+/* Ensure proper spacing for admin interface */
+.content-wrapper {
+  padding: 15px;
+}
+
+/* Fix for form controls */
+.form-control {
+  border-radius: 4px;
+  border: 1px solid #d2d6de;
+  padding: 6px 12px;
+  height: 34px;
+}
+
+/* Fix for buttons */
+.btn {
+  border-radius: 4px;
+  padding: 6px 12px;
+}
+
+/* Fix for tables */
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  background-color: transparent;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Fix for modals */
+.modal-content {
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Fix for alerts */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+/* Fix for navigation */
+.nav-tabs {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.nav-tabs > li > a {
+  margin-right: 2px;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  color: #555;
+  cursor: default;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom-color: transparent;
+}

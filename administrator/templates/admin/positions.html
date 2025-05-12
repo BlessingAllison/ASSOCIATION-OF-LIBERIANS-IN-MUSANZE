@@ -9,7 +9,7 @@
           class="fa fa-plus"></i> Add New</a>
 </div>
 <div class="box-body">
-  <table id="example1" class="table table-bordered table-hover table-striped">
+  <table id="positions-table" class="table table-bordered table-hover table-striped">
     <thead style="background-color: #222D32; color:white;">
           <th>Name</th>
           <th>Maximum Votes</th>
@@ -146,8 +146,25 @@
 {% block custom_js %}
   
 <script>
-  $(function() {
-      $(document).on('click', '.edit', function(e) {
+  $(function () {
+    // Initialize DataTable with a unique ID
+    $('#positions-table').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : true,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false,
+      'responsive'  : true
+    });
+    
+    // Initialize iCheck for checkboxes
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass   : 'iradio_minimal-blue'
+    });
+
+    $(document).on('click', '.edit', function(e) {
           e.preventDefault();
           $('#edit').modal('show');
           var id = $(this).data('id');

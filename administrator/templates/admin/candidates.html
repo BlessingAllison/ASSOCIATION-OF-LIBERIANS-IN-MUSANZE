@@ -11,7 +11,7 @@
           class="fa fa-plus"></i> Add New</a>
 </div>
 <div class="box-body">
-  <table id="example1" class="table table-bordered table-hover table-striped">
+  <table id="candidates-table" class="table table-bordered table-hover table-striped">
     <thead style="background-color: #222D32; color:white;">
           <th>Full Name</th>
           <th>Position</th>
@@ -177,6 +177,25 @@
          
       });
   }
-  </script>
+
+  $(function () {
+    // Initialize DataTable with a unique ID
+    $('#candidates-table').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : true,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false,
+      'responsive'  : true
+    })
+    
+    // Initialize iCheck for checkboxes
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass   : 'iradio_minimal-blue'
+    })
+  })
+</script>
 {% endblock custom_js %}
   
