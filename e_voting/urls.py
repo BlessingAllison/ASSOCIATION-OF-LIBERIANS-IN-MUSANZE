@@ -34,8 +34,8 @@ def redirect_to_dashboard(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include(('account.urls', 'account'), namespace='account')),
-    path('', include(('voting.urls', 'voting'), namespace='voting')),
     path('administrator/', include(('administrator.urls', 'administrator'), namespace='administrator')),
+    path('', include(('voting.urls', 'voting'), namespace='voting')),
     
     # Handle both with and without trailing slash for the root URL
     path('', login_required(redirect_to_dashboard), name='home'),
