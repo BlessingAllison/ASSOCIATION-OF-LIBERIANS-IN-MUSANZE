@@ -106,15 +106,79 @@
       <!-- Load Chart.js only once -->
       <script src="{% static 'bower_components/chart.js/Chart.min.js' %}"></script>
       
+      <style>
+      /* Ensure chart containers have proper dimensions */
+      .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin: 20px 0;
+        border: 2px dashed #ccc;
+        padding: 10px;
+      }
+      .test-chart {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+      }
+      </style>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Test Chart</h3>
+          <div class="chart-container">
+            <canvas id="testChart" class="test-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
       <!-- Pass chart data to JavaScript -->
       {{ chart_data|json_script:"chartData" }}
       
       <script>
       document.addEventListener('DOMContentLoaded', function() {
-        // Get chart data from the JSON script tag
-        var chartData = JSON.parse(document.getElementById('chartData').textContent);
-        
-        function initializeCharts() {
+        // 1. First, test with a simple chart
+        try {
+          var testCtx = document.getElementById('testChart').getContext('2d');
+          new Chart(testCtx, {
+            type: 'bar',
+            data: {
+              labels: ['Test 1', 'Test 2', 'Test 3'],
+              datasets: [{
+                label: 'Test Data',
+                data: [10, 20, 30],
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.8)',
+                  'rgba(54, 162, 235, 0.8)',
+                  'rgba(255, 206, 86, 0.8)'
+                ],
+                borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+          console.log('Test chart created successfully');
+        } catch (e) {
+          console.error('Test chart error:', e);
+        }
+
+        // 2. Then try with your actual data
+        try {
+          var chartData = JSON.parse(document.getElementById('chartData').textContent);
+          console.log('Chart data loaded:', chartData);
+
           Object.entries(chartData).forEach(function([positionName, position]) {
             try {
               var chartId = 'position-' + position.pos_id;
@@ -126,113 +190,65 @@
               }
               
               // Make canvas more visible for debugging
-              canvas.style.border = '1px solid red';
+              canvas.style.border = '2px solid red';
               canvas.style.backgroundColor = '#f8f9fa';
-              canvas.style.padding = '10px';
-              canvas.style.margin = '10px 0';
               
-              // Set explicit dimensions if not set
-              if (!canvas.width) canvas.width = canvas.offsetWidth || 400;
-              if (!canvas.height) canvas.height = 200;
+              // Set parent container styles
+              var container = canvas.closest('.chart-container') || canvas.parentElement;
+              if (container) {
+                container.style.height = '300px';
+                container.style.position = 'relative';
+              }
               
               var ctx = canvas.getContext('2d');
-              
-              // Debug log
-              console.log('Initializing chart for position:', positionName);
-              console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
-              console.log('Candidates:', position.candidates);
-              console.log('Votes:', position.votes);
               
               // Ensure votes are numbers
               var votesData = position.votes.map(function(vote) {
                 return parseInt(vote, 10);
               });
               
-              // Create chart with more visible styles
+              // Create chart with minimal options
               new Chart(ctx, {
                 type: 'bar',
                 data: {
                   labels: position.candidates,
                   datasets: [{
                     label: 'Votes',
+                    data: votesData,
                     backgroundColor: 'rgba(60, 141, 188, 0.8)',
                     borderColor: 'rgba(60, 141, 188, 1)',
-                    borderWidth: 2,
-                    hoverBackgroundColor: 'rgba(60, 141, 188, 1)',
-                    hoverBorderColor: 'rgba(60, 141, 188, 1)',
-                    data: votesData
+                    borderWidth: 1
                   }]
                 },
                 options: {
                   indexAxis: 'y',
                   responsive: true,
                   maintainAspectRatio: false,
-                  layout: {
-                    padding: 20
-                  },
                   scales: {
-                    x: { 
-                      beginAtZero: true,
-                      grid: {
-                        display: true,
-                        color: 'rgba(0, 0, 0, 0.1)'
-                      },
-                      ticks: { 
-                        stepSize: 1,
-                        precision: 0,
-                        font: {
-                          size: 12
-                        }
-                      } 
-                    },
-                    y: { 
-                      grid: { 
-                        display: false 
-                      },
-                      ticks: {
-                        font: {
-                          size: 12
-                        }
-                      }
-                    }
+                    x: { beginAtZero: true },
+                    y: {}
                   },
-                  plugins: { 
-                    legend: { 
-                      display: true,
-                      position: 'top',
-                      labels: {
-                        font: {
-                          size: 12
-                        }
-                      }
-                    },
+                  plugins: {
                     title: {
                       display: true,
-                      text: positionName,
-                      font: {
-                        size: 16,
-                        weight: 'bold'
-                      },
-                      padding: {
-                        top: 10,
-                        bottom: 20
-                      }
+                      text: positionName
+                    },
+                    legend: {
+                      display: false
                     }
                   }
                 }
               });
               
+              console.log('Chart created for:', positionName);
+              
             } catch (error) {
-              console.error('Chart error for', positionName, ':', error);
+              console.error('Error creating chart for', positionName, ':', error);
             }
           });
-        }
-        
-        // Initialize charts when the page is fully loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          initializeCharts();
-        } else {
-          window.addEventListener('load', initializeCharts);
+          
+        } catch (e) {
+          console.error('Error processing chart data:', e);
         }
       });
       </script>
