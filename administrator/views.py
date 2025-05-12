@@ -95,20 +95,25 @@ def dashboard(request):
     candidates = Candidate.objects.all()
     voters = Voter.objects.all()
     voted_voters = Voter.objects.filter(voted=1)
-    list_of_candidates = []
-    votes_count = []
     chart_data = {}
 
     for position in positions:
-        list_of_candidates = []
-        votes_count = []
-        for candidate in Candidate.objects.filter(position=position):
-            list_of_candidates.append(candidate.fullname)
-            votes = Votes.objects.filter(candidate=candidate).count()
-            votes_count.append(votes)
-        chart_data[position] = {
-            'candidates': list_of_candidates,
-            'votes': votes_count,
+        candidates_data = []
+        votes_data = []
+        
+        # Get all candidates for this position
+        position_candidates = Candidate.objects.filter(position=position)
+        
+        for candidate in position_candidates:
+            # Count votes for each candidate
+            vote_count = Votes.objects.filter(candidate=candidate).count()
+            candidates_data.append(candidate.fullname)
+            votes_data.append(vote_count)
+        
+        # Store the data with position name as key
+        chart_data[position.name] = {
+            'candidates': candidates_data,
+            'votes': votes_data,
             'pos_id': position.id
         }
 
