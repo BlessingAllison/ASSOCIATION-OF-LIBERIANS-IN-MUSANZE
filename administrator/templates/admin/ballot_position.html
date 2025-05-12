@@ -64,7 +64,7 @@
   function fetch(){
     $.ajax({
       type: 'GET',
-      url: '{% url "administrator:fetch_ballot" %}',
+      url: '{% url "administrator:ballot_position" %}',
       dataType: 'json',
       success: function(response){
         $('#content').html(response).iCheck({checkboxClass: 'icheckbox_flat-green',radioClass: 'iradio_flat-green'});
