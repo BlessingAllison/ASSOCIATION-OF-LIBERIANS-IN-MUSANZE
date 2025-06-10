@@ -58,12 +58,14 @@
 $(document).ready(function() {
     // Countdown timer
     function updateCountdown() {
-        const electionDate = new Date('2025-06-14T00:00:00-07:00');
+        // Election date: June 14, 2025, 00:00:00 CAT (Central Africa Time, UTC+2)
+        const electionDate = new Date('2025-06-14T00:00:00+02:00');
         const now = new Date();
         const diff = electionDate - now;
 
         if (diff <= 0) {
             $('.countdown').html('Election has started!');
+            clearInterval(countdownInterval);
             return;
         }
 
@@ -79,7 +81,7 @@ $(document).ready(function() {
     }
 
     // Update countdown every second
-    setInterval(updateCountdown, 1000);
+    const countdownInterval = setInterval(updateCountdown, 1000);
     updateCountdown();
 
     // Handle form submission
