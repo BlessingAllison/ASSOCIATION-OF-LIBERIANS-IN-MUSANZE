@@ -13,6 +13,15 @@
                     </div>
                 {% endfor %}
             {% endif %}
+            <div class="text-center mb-4">
+                <h4 class="text-primary">Election Countdown</h4>
+                <div class="countdown" style="font-size: 24px;">
+                    <span class="days">0</span> days 
+                    <span class="hours">0</span> hours 
+                    <span class="minutes">0</span> minutes 
+                    <span class="seconds">0</span> seconds
+                </div>
+            </div>
             <form action="{% url 'account:login' %}" method="POST" id="loginForm">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
@@ -46,6 +55,32 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
+    // Countdown timer
+    function updateCountdown() {
+        const electionDate = new Date('2025-06-14T00:00:00-07:00');
+        const now = new Date();
+        const diff = electionDate - now;
+
+        if (diff <= 0) {
+            $('.countdown').html('Election has started!');
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        $('.days').text(days);
+        $('.hours').text(hours);
+        $('.minutes').text(minutes);
+        $('.seconds').text(seconds);
+    }
+
+    // Update countdown every second
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
     // Handle form submission
     $('#loginForm').on('submit', function(e) {
         e.preventDefault();
